@@ -3,7 +3,15 @@ node {
         pollSCM('TZ=America/Santo_Domingo H 7 * * * ')
     }
     stage('go-fast - Checkout') {
-        git([url: 'https://github.com/djangulo/go-fast.git', branch: 'master']) 
+        checkout(
+            [
+                $class: 'GitSCM',
+                branches: [[name: '*/dev']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [],
+                submoduleCfg: [],
+                userRemoteConfigs: [[url: 'https://github.com/djangulo/go-fast.git']]
+            ]) 
     }
     stage('Test') {
         echo 'Testing....'
