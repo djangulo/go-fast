@@ -1,21 +1,15 @@
-node {
+pipeline {
+    agent any
     triggers {
         pollSCM('TZ=America/Santo_Domingo H 7 * * * ')
     }
     stage('go-fast - Checkout') {
-        checkout(
-            [
-                $class: 'GitSCM',
-                branches: [[name: '*/dev']],
-                doGenerateSubmoduleConfigurations: false,
-                extensions: [],
-                submoduleCfg: [],
-                userRemoteConfigs: [[url: 'https://github.com/djangulo/go-fast.git']]
-            ]) 
+        checkout scm
+        git([url: 'https://github.com/djangulo/go-fast.git', branch: 'dev']) 
     }
     stage('Test') {
         echo 'Testing....'
-        sh "go test"
+        sh "go test -v"
     }
     stage('Build') {
         echo 'Building....'
