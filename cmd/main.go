@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// greet the planet
+// greet the planetosphere
 func greet(writer io.Writer) {
 	fmt.Fprint(writer, "Hello world!")
 }
