@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// greet the world
 func greet(writer io.Writer) {
 	fmt.Fprint(writer, "Hello world!")
 }
