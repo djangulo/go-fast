@@ -148,7 +148,11 @@ else
 fi
 
 message_success "Traefik-docker scaffolding created succesfully"
-tree ${traefik_path}
+if ! tree_loc="$(type -p "tree")" || [[ -z $tree_loc ]]; then
+    ls -la ${traefik_path}
+else
+    tree ${traefik_path}
+fi
 
 
 message_info "Creating network \e[33m${snake_pname}_web\e[0m"
