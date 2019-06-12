@@ -78,7 +78,7 @@ fi
 
 traefik_path="${troot}"/"${snake_pname}"
 if [ ! -d $troot ]; then
-    message_info "$troot is not defined, creating dir $traefik_path"
+    message_info "$troot does not exist, creating dir $traefik_path"
     if [ "$dryrun" = false ]; then
         mkdir -p "${traefik_path}"
     fi
@@ -142,7 +142,7 @@ else
         sed -i 's/\r//g' $traefik_path/docker-compose.yml
         sed -i "s/network_web/${snake_pname}_web/g" $traefik_path/docker-compose.yml
         message_newline
-        message_info "Network to be created: \e[33m${snake_pname}_web\e[0m, modify your production.yml accondingly"
+        message_suggestion "Network to be created: \e[33m${snake_pname}_web\e[0m, modify your production.yml accondingly"
         message_newline
     fi
 fi
@@ -156,7 +156,7 @@ fi
 
 
 message_info "Creating network \e[33m${snake_pname}_web\e[0m"
-echo "\tdocker network create ${snake_pname}_web"
+echo -e "\tdocker network create ${snake_pname}_web"
 network_create_output=$(docker network create "${snake_pname}_web" 2>&1 | tr -d '\r')
 if [ ${network_create_output:0:5} == "Error" ] || [[ -z "${network_create_output}" ]]; then
     message_error "$network_create_output"
