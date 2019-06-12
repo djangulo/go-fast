@@ -22,7 +22,9 @@ message_warning()
 
 message_error()
 {
+    message_newline
     echo -e "\e[31mERROR\e[0m: ${@}"
+    message_newline
 }
 
 message_info()

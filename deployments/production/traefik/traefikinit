@@ -27,15 +27,15 @@ show_help(){
     echo
 }
 
-# if ! docker_loc="$(type -p "docker")" || [[ -z $docker_loc ]]; then
-#     message_error ${DOCKER_REQUIRED}
-#     exit 1
-# fi
+if ! docker_loc="$(type -p "docker")" || [[ -z $docker_loc ]]; then
+    message_error ${DOCKER_REQUIRED}
+    exit 1
+fi
 
-# if ! compose_loc="$(type -p "docker-compose")" || [[ -z $compose_loc ]]; then
-#     message_error ${DOCKER_REQUIRED/docker/docker-compose}
-#     exit 1
-# fi
+if ! compose_loc="$(type -p "docker-compose")" || [[ -z $compose_loc ]]; then
+    message_error ${DOCKER_REQUIRED//docker/docker-compose}
+    exit 1
+fi
 
 message_warning ${SCRIPT_WARNING}
 
