@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 volumes:
   production_traefik: {}
@@ -7,7 +7,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: ./deployments/production/go/Dockerfile
+      dockerfile: ./deployments/staging/go/Dockerfile
     image: go_fast_app
     restart: always
     command: /go-fast
@@ -15,12 +15,12 @@ services:
   traefik:
     build:
       context: .
-      dockerfile: ./deployments/production/traefik/Dockerfile
+      dockerfile: ./deployments/production/traefik/Dockerfile.singleton
     image: go_fast_traefik
     depends_on:
       - app
     volumes:
       - production_traefik:/etc/traefik/acme
     ports:
-      - '0.0.0.0:80:80'
-      - '0.0.0.0:443:443'
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"

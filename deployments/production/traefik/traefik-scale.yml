@@ -1,0 +1,20 @@
+version: "2"
+
+services:
+  traefik:
+    image: traefik:<stable version from https://hub.docker.com/_/traefik>
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - network_web
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/traefik/traefik.toml:/traefik.toml
+      - /opt/traefik/acme.json:/acme.json
+    container_name: traefik
+
+networks:
+  network_web:
+    external: true

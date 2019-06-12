@@ -1,0 +1,167 @@
+#!/usr/bin/env bash
+
+
+set -o errexit
+set -o pipefail
+# set -o nounset
+
+working_dir="$(dirname ${0})"
+source "${working_dir}/_sourced/messages.sh"
+source "${working_dir}/_sourced/constants.sh"
+
+show_help(){
+    echo "Usage: traefikinit [OPTIONS]"
+    echo "Initial setup for traefik with docker"
+    echo "Creates traefik scaffolding under \$traefik-root/\$project-name"
+    echo "then starts a service as described in ./traefik-compose.yml"
+    echo
+    echo -e "\t-h, --help\t\tshow this help message and exit"
+    echo -e "\t-p, --project-name\tdirname for project traefik files"
+    echo
+    echo -e "\t-t, --traefik-root\troot dir for traefik, default /opt/traefik"
+    echo -e "\t-a, --admin\t\temail address to register the acme challenges against"
+    echo -e "\t-u, --docker-domain\t\domain to assign to the docker provider on traefik.toml"
+    echo -e "\t-d, --dry-run\t\flag to run without making any changes"
+    echo
+    echo -e ${SCRIPT_WARNING}
+    echo
+}
+
+# if ! docker_loc="$(type -p "docker")" || [[ -z $docker_loc ]]; then
+#     message_error ${DOCKER_REQUIRED}
+#     exit 1
+# fi
+
+# if ! compose_loc="$(type -p "docker-compose")" || [[ -z $compose_loc ]]; then
+#     message_error ${DOCKER_REQUIRED/docker/docker-compose}
+#     exit 1
+# fi
+
+message_warning ${SCRIPT_WARNING}
+
+while [ "$1" != "" ]; do
+    case $1 in
+        -p|--project-name)  pname="$2"; shift;;
+        -t|--traefik-root)  troot="$2"; shift;;
+        -u|--docker-domain) host="$2"; shift;;
+        -a|--admin)         admin="$2"; shift;;
+        -d|--dry-run)       dryrun="$2"; shift;;
+        -h|-\?|--help)      show_help; exit;;
+        -*|--*=)            message_error "Unsuported arg $2"; show_help; exit 1;;
+        *)               # Default case: No more options, so break out of the loop.
+    esac
+    shift
+done
+
+if [[ -z "${dryrun}" ]]; then
+    dryrun=false
+else
+    message_info "Performing dry run"
+fi
+
+if [[ -z "${pname}" ]]; then
+    pname="$(basename $(dirname $(dirname $(dirname `pwd`))))"
+    message_info "project-name not set, defaulting to: ${pname}"
+else
+    message_info "project-name: ${pname}"
+fi
+
+snake_pname=${pname//[- .]/_}
+kebab_pname=${pname//[- .]/-}
+
+if [[ -z "${troot}" ]]; then
+    troot=/opt/traefik
+    message_info "traefik-root [dir] not set, defaulting to: ${troot}"
+else
+    message_info "traefik-root: ${troot}"
+fi
+
+traefik_path="${troot}"/"${snake_pname}"
+if [ ! -d $troot ]; then
+    message_info "$troot is not defined, creating dir $traefik_path"
+    if [ "$dryrun" = false ]; then
+        mkdir -p "${traefik_path}"
+    fi
+else
+    if [ ! -d $traefik_path ]; then
+        message_info "$troot dir exists, creating dir $traefik_path"
+        if [ "$dryrun" = false ]; then
+            mkdir -p "${traefik_path}"
+        fi
+    else
+        message_info "$traefik_path dir exists, no changes"
+    fi
+fi
+
+if [[ -z "${host}" ]]; then
+    message_warning "--docker-domain not set, you will need to make manual changes to ${traefik_path}/traefik.toml"
+else
+    message_info "docker domain: ${host}"
+fi
+
+if [[ -z "${admin}" ]]; then
+    message_warning "--admin not set, you will need to make manual changes to ${traefik_path}/traefik.toml"
+else
+    message_info "admin email: ${admin}"
+fi
+
+if [ -f "$traefik_path/traefik.toml" ]; then
+    message_info "$traefik_path/traefik.toml found, leaving uchanged"
+else
+    if [ "$dryrun" = false ]; then
+        message_info "Copying ./traefik-scale.toml => $traefik_path/traefik.toml"
+        cp ./traefik-scale.toml $traefik_path/traefik.toml
+        sed -i 's/\r//g' $traefik_path/traefik.toml
+        if [[ ! -z "${admin}" ]]; then
+            message_info "Setting $traefik_path/traefik.toml admin = $admin"
+            sed -i "s/ADMIN_EMAIL/${admin}/g" $traefik_path/traefik.toml
+        fi
+        if [[ ! -z "${host}" ]]; then
+        message_info "Setting $traefik_path/traefik.toml docker domain = $host"
+            sed -i "s#\"DOCKER_DOMAIN\"#\"${host}\"#g" $traefik_path/traefik.toml
+        fi
+    fi
+fi
+
+if [ -f "$traefik_path/acme.json" ]; then
+    message_info "$traefik_path/acme.json found, leaving uchanged"
+else
+    if [ "$dryrun" = false ]; then
+        message_info "Creating blank $traefik_path/acme.json"
+        touch $traefik_path/acme.json
+        chmod 600 $traefik_path/acme.json
+    fi
+fi
+
+if [ -f "$traefik_path/docker-compose.yaml" ]; then
+    message_info "$traefik_path/docker-compose.yaml found, leaving uchanged"
+else
+    if [ "$dryrun" = false ]; then
+        message_info "Copying ./traefik-scale.yml => $traefik_path/docker-compose.yml"
+        cp ./traefik-scale.yml $traefik_path/docker-compose.yml
+        sed -i 's/\r//g' $traefik_path/docker-compose.yml
+        sed -i "s/network_web/${snake_pname}_web/g" $traefik_path/docker-compose.yml
+        message_newline
+        message_info "Network to be created: \e[33m${snake_pname}_web\e[0m, modify your production.yml accondingly"
+        message_newline
+    fi
+fi
+
+message_success "Traefik-docker scaffolding created succesfully"
+tree ${traefik_path}
+
+
+message_info "Creating network \e[33m${snake_pname}_web\e[0m"
+network_create_output=$(docker network create "${snake_pname}_web" 2>&1)
+if [ ${network_create_output:0:5} == "Error" || -z "${network_create_output}" ]; then
+    message_error "$network_create_output"
+    exit 1
+else
+    message_success "Network ${snake_pname}_web created succesfully"
+fi
+
+message_info "Running docker compose"
+compose_output=$(docker-compose -f "$traefik_path/docker-compose.yml" up --detach 2>&1)
+
+
+
