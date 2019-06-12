@@ -12,16 +12,16 @@ pipeline {
                 git([url: 'https://github.com/djangulo/go-fast.git', branch: 'dev']) 
             }
         }
-        stage('Test') {
-            steps {
-                echo 'Testing......'
-                sh "go test -v"
-            }
-        }
         stage('Build') {
             steps {
                 echo 'Building....'
-                sh "go build"
+                sh "docker-compose -f local.yml run build"
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing......'
+                sh "docker-compose -f local.yml run --rm app go test -v"
             }
         }
         stage('Deploy') {
@@ -30,7 +30,7 @@ pipeline {
                 sh """ 
 #!/bin/sh
 export COMPOSE_TLS_VERSION=TLSv1_2
-sudo docker-compose -H "ssh://ci-jenkins@djangulo.com" --build --detach
+sudo docker-compose -f production.yml -H "ssh://ci-jenkins@djangulo.com" up --build --detach
 """ 
             }
 
