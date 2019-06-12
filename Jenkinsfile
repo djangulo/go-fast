@@ -3,9 +3,13 @@ pipeline {
     triggers {
         pollSCM('TZ=America/Santo_Domingo H 7 * * * ')
     }
+    parameters {
+        string(name: 'payload', defaultValue: '', description: "Github's push event payload")
+    }
     stages {
         stage('go-fast - Checkout') {
             steps {
+                echo "Payload is: ${params.payload}"
                 git([url: 'https://github.com/djangulo/go-fast.git', branch: 'dev']) 
             }
         }
