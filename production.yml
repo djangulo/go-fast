@@ -1,0 +1,26 @@
+version: '3'
+
+volumes:
+  production_traefik: {}
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./deployments/production/go/Dockerfile
+    image: go_fast_app
+    restart: always
+    command: /go-fast
+
+  traefik:
+    build:
+      context: .
+      dockerfile: ./deployments/production/traefik/Dockerfile
+    image: go_fast_traefik
+    depends_on:
+      - app
+    volumes:
+      - production_traefik:/etc/traefik/acme
+    ports:
+      - '0.0.0.0:80:80'
+      - '0.0.0.0:443:443'

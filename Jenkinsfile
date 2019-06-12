@@ -9,7 +9,6 @@ pipeline {
     stages {
         stage('go-fast - Checkout') {
             steps {
-                echo "Payload is: ${params.payload}"
                 git([url: 'https://github.com/djangulo/go-fast.git', branch: 'dev']) 
             }
         }
