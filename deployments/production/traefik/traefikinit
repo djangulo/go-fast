@@ -156,16 +156,19 @@ fi
 
 
 message_info "Creating network \e[33m${snake_pname}_web\e[0m"
-network_create_output=$(docker network create "${snake_pname}_web" 2>&1)
-if [ ${network_create_output:0:5} == "Error" || -z "${network_create_output}" ]; then
+echo "\tdocker network create ${snake_pname}_web"
+network_create_output=$(docker network create "${snake_pname}_web" 2>&1 | tr -d '\r')
+if [ ${network_create_output:0:5} == "Error" ] || [[ -z "${network_create_output}" ]]; then
     message_error "$network_create_output"
     exit 1
 else
-    message_success "Network ${snake_pname}_web created succesfully"
+    message_success "Network\e[33m${snake_pname}_web\e[0m created succesfully"
 fi
 
 message_info "Running docker compose"
-compose_output=$(docker-compose -f "$traefik_path/docker-compose.yml" up --detach 2>&1)
+echo -e "\tdocker-compose -f "$traefik_path/docker-compose.yml" up --detach"
+docker-compose -f "$traefik_path/docker-compose.yml" up --detach
+
 
 
 
