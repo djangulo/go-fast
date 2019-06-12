@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 
-set -o errexit
+# set -o errexit
 set -o pipefail
 # set -o nounset
 
@@ -162,7 +162,7 @@ if [ ${network_create_output:0:5} == "Error" ] || [[ -z "${network_create_output
     message_error "$network_create_output"
     exit 1
 else
-    message_success "Network\e[33m${snake_pname}_web\e[0m created succesfully"
+    message_success "Network \e[33m${snake_pname}_web\e[0m created succesfully"
 fi
 
 message_info "Running docker compose"
