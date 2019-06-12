@@ -1,7 +1,7 @@
 pipeline {
     agent any
     triggers {
-        pollSCM('TZ=America/Santo_Domingo H 7 * * * ')
+        cron('H * * * *')
     }
     parameters {
         string(name: 'payload', defaultValue: '', description: "Github's push event payload")
