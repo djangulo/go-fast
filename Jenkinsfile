@@ -42,6 +42,7 @@ node {
     }
     if (currentBuild.currentResult == 'SUCCESS') {
         stage('Commit to staging branch') {
+                sh 'git remote -v'
                 sh "git push origin dev:staging"
         }
         stage('Deploy to staging server') {
