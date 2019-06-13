@@ -43,10 +43,9 @@ node {
     if (currentBuild.currentResult == 'SUCCESS') {
         stage('Commit to staging branch') {
             withCredentials([sshUserPrivateKey(credentialsId: '3e75e831-6891-4a3b-97fa-a5e508dffdca', keyFileVariable: 'SSH_KEY')]) {
-                sh 'git fetch origin'
                 sh 'git checkout staging'
                 sh 'git merge origin/dev'
-                sh 'git push origin staging'
+                sh 'git push git@github.com:djangulo/go-fast.git HEAD:refs/heads/staging'
             }
         }
         stage('Deploy to staging server') {
