@@ -42,19 +42,10 @@ node {
     }
     if (currentBuild.currentResult == 'SUCCESS') {
         stage('Commit to staging branch') {
-            withCredentials([sshUserPrivateKey(
-                credentialsId: '3e75e831-6891-4a3b-97fa-a5e508dffdca',
-                keyFileVariable: 'SSH_KEY',
-                passphraseVariable: 'SSH_PASS',
-                usernameVariable: 'SSH_USER'
-            )]) {
-                echo '$SSH_USER'
-                echo '$SSH_KEY'
                 sh 'git checkout staging'
                 sh 'git merge dev'
                 sh 'git commit -am "Merged develop branch to staging"'
                 sh "git push origin staging"
-            }
         }
         stage('Deploy to staging server') {
             echo 'Deploying....'
