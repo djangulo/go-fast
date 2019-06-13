@@ -24,6 +24,7 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 	return p
 }
 
+// PlayerStore interface
 type PlayerStore interface {
 	GetPlayerScore(name string) int
 	RecordWin(name string)
