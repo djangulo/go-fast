@@ -7,7 +7,12 @@ node {
             doGenerateSubmoduleConfigurations: false,
             extensions: [],
             submoduleCfg: [],
-            userRemoteConfigs: [[url: 'git@github.com:djangulo/go-fast.git']]
+            userRemoteConfigs: [
+                [
+                    credentialsId: '3e75e831-6891-4a3b-97fa-a5e508dffdca',
+                    url: 'git@github.com:djangulo/go-fast.git'
+                ]
+            ]
         ])
     }
     stage('Build local for tests') {
@@ -37,7 +42,14 @@ node {
     }
     if (currentBuild.currentResult == 'SUCCESS') {
         stage('Commit to staging branch') {
-            withCredentials([sshUserPrivateKey(credentialsId: '3e75e831-6891-4a3b-97fa-a5e508dffdca', keyFileVariable: 'SSH_KEY', passphraseVariable: 'SSH_PASS', usernameVariable: 'SSH_USER')]) {
+            withCredentials([sshUserPrivateKey(
+                credentialsId: '3e75e831-6891-4a3b-97fa-a5e508dffdca',
+                keyFileVariable: 'SSH_KEY',
+                passphraseVariable: 'SSH_PASS',
+                usernameVariable: 'SSH_USER'
+            )]) {
+                echo '$SSH_USER'
+                echo '$SSH_KEY'
                 sh 'git checkout staging'
                 sh 'git merge dev'
                 sh 'git commit -am "Merged develop branch to staging"'
