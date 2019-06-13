@@ -2,30 +2,11 @@ package main
 
 import (
 	"errors"
-	"github.com/gofrs/uuid"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	"time"
 )
 
 var ErrRecordAlreadyExists = errors.New("already exists")
-
-type Player struct {
-	ID        uuid.UUID `gorm:"primary_key"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time
-	Name      string `gorm:"type:varchar(50);unique;not null;"`
-	Score     int    `gorm:"not null;default:0;"`
-}
-
-func (p *Player) BeforeCreate(scope *gorm.Scope) error {
-	uuid, err := uuid.NewV4()
-	if err != nil {
-		return err
-	}
-	return scope.SetColumn("ID", uuid)
-}
 
 func NewSqlite3PlayerStore(file string) *Sqlite3PlayerStore {
 	db, err := gorm.Open("sqlite3", file)
