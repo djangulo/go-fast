@@ -23,7 +23,7 @@ node {
             ])
             step([
                 $class: 'DockerComposeBuilder',
-                dockerComposeFile: 'docker-compose.yml',
+                dockerComposeFile: 'local.yml',
                 option: [$class: 'StopAllServices'],
                 useCustomDockerComposeFile: false
             ])
