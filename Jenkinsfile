@@ -42,8 +42,11 @@ node {
     }
     if (currentBuild.currentResult == 'SUCCESS') {
         stage('Commit to staging branch') {
-                sh 'git remote -v'
-                sh "git push origin dev:staging"
+                sh 'git fetch origin'
+                sh 'git checkout staging'
+                sh 'git merge origin/dev'
+                sh 'git push origin staging'
+
         }
         stage('Deploy to staging server') {
             echo 'Deploying....'
