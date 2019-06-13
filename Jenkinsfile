@@ -1,39 +1,52 @@
-pipeline {
-    agent any
-    triggers {
-        cron('H * * * *')
+node {
+    stage('Checkout') {
+        echo "Fetching branch"
+        checkout([$class: 'GitSCM', branches: [[name: '*/dev']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/djangulo/go-fast']]])
     }
-    parameters {
-        string(name: 'payload', defaultValue: '', description: "Github's push event payload")
+    stage('Build local for tests') {
+        echo 'Building onside docker container....'
+        step([$class: 'DockerComposeBuilder', dockerComposeFile: 'local.yml', option: [$class: 'StartAllServices'], useCustomDockerComposeFile: true])
     }
-    stages {
-        stage('go-fast - Checkout') {
-            steps {
-                git([url: 'https://github.com/djangulo/go-fast.git', branch: 'dev']) 
-            }
+    stage('Test') {
+        echo 'Testing....'
+        step([
+            $class: 'DockerComposeBuilder',
+            dockerComposeFile: 'local.yml',
+            option: [
+                $class: 'ExecuteCommandInsideContainer',
+                command: 'go test -v',
+                index: 1,
+                privilegedMode: false,
+                service: 'app',
+                workDir: ''],
+                useCustomDockerComposeFile: true
+            ])
+    }
+    if (currentBuild.currentResult == 'SUCCESS') {
+        stage('Commit to staging branch') {
+            sh "git merge staging"
+            sh 'git commit -am "Merged develop branch to staging'
+            sh "git push origin staging"
         }
-        stage('Build') {
-            steps {
-                echo 'Building....'
-                sh "docker-compose -f local.yml run build"
-            }
-        }
-        stage('Test') {
-            steps {
-                echo 'Testing......'
-                sh "docker-compose -f local.yml run --rm app go test -v"
-            }
-        }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying....'
-                sh """ 
+        stage('Deploy to staging server') {
+            echo 'Deploying....'
+            withEnv([
+                'DIGITALOCEAN_DROPLET_NAME=go-fast',
+                'DIGITALOCEAN_ACCESS_TOKEN=$(cat ~/.digitalocean-apikey)',
+                'DIGITALOCEAN_REGION=nyc3',
+                'DIGITALOCEAN_DOMAIN=go-fast-staging.linekode.com',
+                'DIGITAL_OCEAN_SSH_KEY_PATH=$HOME/.ssh/id_rsa.pub',
+                'DIGITALOCEAN_SSH_PUBKEY_NAME="Jenkins-CI key (djal@tuta.io)"',
+                'COMPOSE_TLS_VERSION=TLSv1_2'
+            ]) {
+                sh label: '', script: '''
 #!/bin/sh
-export COMPOSE_TLS_VERSION=TLSv1_2
-sudo docker-compose -f production.yml -H "ssh://ci-jenkins@djangulo.com" up --build --detach
-""" 
+docker-machine --native-ssh create --driver digitalocean $DIGITALOCEAN_DROPLET_NAME
+/var/lib/jenkins/provision_digitalocean.py
+eval $(docker-machine env $DIGITALOCEAN_DROPLET_NAME)
+docker-compose -f staging.yml up --build -d
+'''
             }
-
         }
     }
 }
