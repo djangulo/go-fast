@@ -21,7 +21,7 @@ func init() {
 func main() {
 	flag.Parse()
 	fmt.Println("Listening at 127.0.0.1:" + port)
-	server := &PlayerServer{NewInMemoryPlayerStore()}
+	server := NewPlayerServer(NewInMemoryPlayerStore())
 	if err := http.ListenAndServe(":"+port, server); err != nil {
 		log.Fatalf("could not listen on port %s %v", port, err)
 	}

@@ -24,15 +24,19 @@ type Sqlite3PlayerStore struct {
 func (s *Sqlite3PlayerStore) GetPlayerScore(name string) int {
 	var player Player
 	s.db.First(&player)
-	return player.Score
+	return player.Wins
 }
 func (s *Sqlite3PlayerStore) RecordWin(name string) {
-	// fmt.Println("called create")
 	var player Player
-	s.db.First(&player)
-	player.Score = player.Score + 1
+	s.db.FirstOrCreate(&player, Player{Name: name})
+	player.Wins = player.Wins + 1
 	s.db.Save(&player)
-	// fmt.Printf("%#v", player)
+}
+
+func (s *Sqlite3PlayerStore) GetLeague() []Player {
+	var players []Player
+	s.db.Select([]string{"name", "wins"}).Find(&players)
+	return players
 }
 
 func (s *Sqlite3PlayerStore) CreatePlayer(player Player) error {

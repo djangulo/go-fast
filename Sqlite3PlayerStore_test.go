@@ -16,7 +16,7 @@ func TestCreatePlayer(t *testing.T) {
 		store := NewSqlite3PlayerStore(testDBName)
 		defer store.db.Close()
 
-		player := Player{Name: name1, Score: 0}
+		player := Player{Name: name1, Wins: 0}
 		err := store.CreatePlayer(player)
 		var p Player
 		store.db.Where("name = ?", name1).First(&p)
@@ -29,9 +29,9 @@ func TestCreatePlayer(t *testing.T) {
 		store := NewSqlite3PlayerStore(testDBName)
 		defer store.db.Close()
 
-		player1 := Player{Name: name1, Score: 0}
-		player2 := Player{Name: name1, Score: 0}
-		player3 := Player{Name: name2, Score: 0}
+		player1 := Player{Name: name1, Wins: 0}
+		player2 := Player{Name: name1, Wins: 0}
+		player3 := Player{Name: name2, Wins: 0}
 		store.CreatePlayer(player1)
 		store.CreatePlayer(player3)
 		err := store.CreatePlayer(player2)
