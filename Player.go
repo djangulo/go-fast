@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// Player struct to hold base data
 type Player struct {
 	ID        uuid.UUID `gorm:"primary_key" json:"id"`
 	CreatedAt time.Time
