@@ -16,6 +16,10 @@ type PlayerStore interface {
 
 // PlayerServer serves player scores through the API
 func (p *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/" {
+		fmt.Fprint(w, "Hello, World!")
+		return
+	}
 	player := r.URL.Path[len("/players/"):]
 
 	switch r.Method {

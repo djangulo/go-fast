@@ -4,8 +4,26 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	// "os"
 	"testing"
 )
+
+func TestGETRoot(t *testing.T) {
+	store := StubPlayerStore{
+		map[string]int{
+			"Pepper": 20,
+			"Floyd":  10,
+		},
+		nil,
+	}
+	server := &PlayerServer{&store}
+	request, _ := http.NewRequest(http.MethodGet, "/", nil)
+	response := httptest.NewRecorder()
+	server.ServeHTTP(response, request)
+	assertStatus(t, response.Code, http.StatusOK)
+	assertResponseBody(t, response.Body.String(), "Hello, World!")
+
+}
 
 func TestGETPlayers(t *testing.T) {
 	store := StubPlayerStore{
@@ -61,18 +79,44 @@ func TestStoreWins(t *testing.T) {
 }
 
 func TestRecordingWinsAndRetrievingThem(t *testing.T) {
-	store := InMemoryPlayerStore{}
-	server := PlayerServer{&store}
-	player := "Pepper"
 
-	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
+	t.Run("InMemoryPlayerStore", func(t *testing.T) {
+		store := NewInMemoryPlayerStore()
+		server := PlayerServer{store}
+		player := "Pepper"
 
-	response := httptest.NewRecorder()
-	server.ServeHTTP(response, newGetScoreRequest(player))
-	assertStatus(t, response.Code, http.StatusOK)
-	assertResponseBody(t, response.Body.String(), "3")
+		server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
+		server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
+		server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
+
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, newGetScoreRequest(player))
+		assertStatus(t, response.Code, http.StatusOK)
+		assertResponseBody(t, response.Body.String(), "3")
+	})
+
+	t.Run("Sqlite3PlayerStore", func(t *testing.T) {
+		const testDBName = ":memory:"
+		store := NewSqlite3PlayerStore(testDBName)
+		defer store.db.Close()
+		// defer func() {
+		// 	fileerr := os.Remove(testDBName)
+		// 	if fileerr != nil {
+		// 		fmt.Println(fileerr)
+		// 	}
+		// }()
+		server := PlayerServer{store}
+		player := "Pepper"
+
+		server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
+		server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
+		server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
+
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, newGetScoreRequest(player))
+		assertStatus(t, response.Code, http.StatusOK)
+		assertResponseBody(t, response.Body.String(), "3")
+	})
 }
 
 type StubPlayerStore struct {
