@@ -25,7 +25,7 @@ node {
                 $class: 'DockerComposeBuilder',
                 dockerComposeFile: 'local.yml',
                 option: [$class: 'StopAllServices'],
-                useCustomDockerComposeFile: false
+                useCustomDockerComposeFile: true
             ])
     }
     if (currentBuild.currentResult == 'SUCCESS') {
