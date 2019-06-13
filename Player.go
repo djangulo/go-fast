@@ -16,6 +16,7 @@ type Player struct {
 	Wins      int    `gorm:"not null;default:0;" json:"wins"`
 }
 
+// BeforeCreate gorm hook to assign UUID
 func (p *Player) BeforeCreate(scope *gorm.Scope) error {
 	uuid, err := uuid.NewV4()
 	if err != nil {
