@@ -4,7 +4,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: ./deployments/go/local/Dockerfile
+      dockerfile: ./deployments/local/go/Dockerfile
     image: go_fast_local
     restart: always
     ports:
