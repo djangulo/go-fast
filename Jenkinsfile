@@ -42,10 +42,7 @@ node {
     }
     if (currentBuild.currentResult == 'SUCCESS') {
         stage('Commit to staging branch') {
-                sh 'git checkout staging'
-                sh 'git merge dev'
-                sh 'git commit -am "Merged develop branch to staging"'
-                sh "git push origin staging"
+                sh "git push origin dev:staging"
         }
         stage('Deploy to staging server') {
             echo 'Deploying....'
