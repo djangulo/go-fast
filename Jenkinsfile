@@ -21,10 +21,16 @@ node {
                 workDir: ''],
                 useCustomDockerComposeFile: true
             ])
+            step([
+                $class: 'DockerComposeBuilder',
+                dockerComposeFile: 'docker-compose.yml',
+                option: [$class: 'StopAllServices'],
+                useCustomDockerComposeFile: false
+            ])
     }
     if (currentBuild.currentResult == 'SUCCESS') {
         stage('Commit to staging branch') {
-            sh 'git checkout -b staging'
+            sh 'git checkout staging'
             sh 'git merge dev'
             sh 'git commit -am "Merged develop branch to staging"'
             sh "git push origin staging"
