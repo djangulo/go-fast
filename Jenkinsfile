@@ -65,7 +65,7 @@ DIGITALOCEAN_DOMAIN=go-fast-staging.linekode.com
 DIGITAL_OCEAN_SSH_KEY_PATH=$HOME/.ssh/id_rsa.pub
 DIGITALOCEAN_SSH_PUBKEY_NAME="Jenkins-CI key (djal@tuta.io)"
 COMPOSE_TLS_VERSION=TLSv1_2
-docker-machine --native-ssh create --driver digitalocean --digitalocean-access-token $DIGITALOCEAN_ACCESS_TOKEN $DIGITALOCEAN_DROPLET_NAME
+docker_machine_output=$(docker-machine --native-ssh create --driver digitalocean --digitalocean-access-token ${DIGITALOCEAN_ACCESS_TOKEN} ${DIGITALOCEAN_DROPLET_NAME}" 2>&1 | tr -d '\r')
 /var/lib/jenkins/provision_digitalocean.py
 eval $(docker-machine env $DIGITALOCEAN_DROPLET_NAME)
 docker-compose -f staging.yml up --build -d
