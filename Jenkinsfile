@@ -9,8 +9,8 @@ node {
             submoduleCfg: [],
             userRemoteConfigs: [
                 [
-                    credentialsId: '3e75e831-6891-4a3b-97fa-a5e508dffdca',
-                    url: 'git@github.com:djangulo/go-fast.git'
+                    credentialsId: 'cbe9c0b1-1eda-4072-8824-3db687647506',
+                    url: 'https://github.com/djangulo/go-fast'
                 ]
             ]
         ])
@@ -42,10 +42,10 @@ node {
     }
     if (currentBuild.currentResult == 'SUCCESS') {
         stage('Commit to staging branch') {
-            withCredentials([sshUserPrivateKey(credentialsId: '3e75e831-6891-4a3b-97fa-a5e508dffdca', keyFileVariable: 'SSH_KEY')]) {
+            withCredentials([usernameColonPassword(credentialsId: 'cbe9c0b1-1eda-4072-8824-3db687647506', variable: 'USERPASS')]) {
                 sh 'git checkout staging'
                 sh 'git merge origin/dev'
-                sh 'git push git@github.com:djangulo/go-fast.git HEAD:refs/heads/staging'
+                sh 'git push origin staging'
             }
         }
         stage('Deploy to staging server') {
