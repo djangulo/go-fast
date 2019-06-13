@@ -42,11 +42,12 @@ node {
     }
     if (currentBuild.currentResult == 'SUCCESS') {
         stage('Commit to staging branch') {
+            sshagent(['3e75e831-6891-4a3b-97fa-a5e508dffdca']) {
                 sh 'git fetch origin'
                 sh 'git checkout staging'
                 sh 'git merge origin/dev'
                 sh 'git push origin staging'
-
+            }
         }
         stage('Deploy to staging server') {
             echo 'Deploying....'
