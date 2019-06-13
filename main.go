@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io"
+	"log"
 	"net/http"
 )
 
@@ -18,18 +18,18 @@ func init() {
 	flag.StringVar(&port, "p", defaultPort, portUsage+" (shorthand)")
 }
 
-// greet the planetosphere
-func greet(writer io.Writer) {
-	fmt.Fprint(writer, "Hello world!")
-}
+type InMemoryPlayerStore struct{}
 
-// handler handles http
-func handler(w http.ResponseWriter, r *http.Request) {
-	greet(w)
+func (i *InMemoryPlayerStore) GetPlayerScore(name string) int {
+	return 3
 }
+func (i *InMemoryPlayerStore) RecordWin(name string) {}
 
 func main() {
 	flag.Parse()
 	fmt.Println("Listening at 127.0.0.1:" + port)
-	http.ListenAndServe(":"+port, http.HandlerFunc(handler))
+	server := &PlayerServer{&InMemoryPlayerStore{}}
+	if err := http.ListenAndServe(":"+port, server); err != nil {
+		log.Fatalf("could not listen on port %s %v", port, err)
+	}
 }
