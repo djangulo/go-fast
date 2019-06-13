@@ -1,7 +1,14 @@
 node {
     stage('Checkout') {
         echo "Fetching branch"
-        checkout([$class: 'GitSCM', branches: [[name: '*/dev']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/djangulo/go-fast']]])
+        checkout([
+            $class: 'GitSCM',
+            branches: [[name: '*/dev']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [],
+            submoduleCfg: [],
+            userRemoteConfigs: [[url: 'git@github.com:djangulo/go-fast.git']]
+        ])
     }
     stage('Build local for tests') {
         echo 'Building onside docker container....'
@@ -30,10 +37,12 @@ node {
     }
     if (currentBuild.currentResult == 'SUCCESS') {
         stage('Commit to staging branch') {
-            sh 'git checkout staging'
-            sh 'git merge dev'
-            sh 'git commit -am "Merged develop branch to staging"'
-            sh "git push origin staging"
+            withCredentials([sshUserPrivateKey(credentialsId: '3e75e831-6891-4a3b-97fa-a5e508dffdca', keyFileVariable: 'SSH_KEY', passphraseVariable: 'SSH_PASS', usernameVariable: 'SSH_USER')]) {
+                sh 'git checkout staging'
+                sh 'git merge dev'
+                sh 'git commit -am "Merged develop branch to staging"'
+                sh "git push origin staging"
+            }
         }
         stage('Deploy to staging server') {
             echo 'Deploying....'
