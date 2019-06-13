@@ -58,13 +58,13 @@ node {
             echo 'Deploying to digitalocean'
                 sh label: '', script: '''
 #!/bin/sh
-DIGITALOCEAN_DROPLET_NAME=go-fast
-DIGITALOCEAN_ACCESS_TOKEN=$(cat ~/.digitalocean-apikey)
-DIGITALOCEAN_REGION=nyc3
-DIGITALOCEAN_DOMAIN=go-fast-staging.linekode.com
-DIGITAL_OCEAN_SSH_KEY_PATH=$HOME/.ssh/id_rsa.pub
-DIGITALOCEAN_SSH_PUBKEY_NAME="Jenkins-CI key (djal@tuta.io)"
-COMPOSE_TLS_VERSION=TLSv1_2
+export DIGITALOCEAN_DROPLET_NAME=go-fast
+export DIGITALOCEAN_ACCESS_TOKEN=$(cat ~/.digitalocean-apikey)
+export DIGITALOCEAN_REGION=nyc3
+export DIGITALOCEAN_DOMAIN=go-fast-staging.linekode.com
+export DIGITAL_OCEAN_SSH_KEY_PATH=$HOME/.ssh/id_rsa.pub
+export DIGITALOCEAN_SSH_PUBKEY_NAME="Jenkins-CI key (djal@tuta.io)"
+export COMPOSE_TLS_VERSION=TLSv1_2
 docker_machine_output=$(docker-machine --native-ssh create --driver digitalocean --digitalocean-access-token "${DIGITALOCEAN_ACCESS_TOKEN}" "${DIGITALOCEAN_DROPLET_NAME}" 2>&1 | tr -d '\r')
 echo $docker_machine_output
 /var/lib/jenkins/provision_digitalocean.py
