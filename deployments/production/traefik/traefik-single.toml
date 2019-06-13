@@ -19,7 +19,7 @@ defaultEntryPoints = ["https", "http"]
 [backends]
   [backends.gofast]
     [backends.gofast.servers.server1]
-      url = "http://go-fast:5000"
+      url = "http://app:9000"
 
 [frontends]
   [frontends.gofast]
