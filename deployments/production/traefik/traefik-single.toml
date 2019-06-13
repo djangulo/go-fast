@@ -28,12 +28,12 @@ defaultEntryPoints = ["https", "http"]
     [frontends.gofast.headers]
       HostsProxyHeaders = ['X-CSRFToken']
     [frontends.django.routes.dr1]
-      rule = "Host:go-fast.djangulo.com"
+      rule = "Host:go-fast-staging.linekode.com"
 
 # Enable ACME (Let's Encrypt): automatic SSL
 [acme]
 # Email address used for registration
-email = "djal@tuto.io"
+email = "djal@tuta.io"
 storage = "/etc/traefik/acme/acme.json"
 entryPoint = "https"
 onDemand = false
