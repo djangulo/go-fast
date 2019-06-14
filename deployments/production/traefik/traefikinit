@@ -10,21 +10,22 @@ source "${working_dir}/_sourced/messages.sh"
 source "${working_dir}/_sourced/constants.sh"
 
 show_help(){
-    echo "Usage: traefikinit [OPTIONS]"
-    echo "Initial setup for traefik with docker"
-    echo "Creates traefik scaffolding under \$traefik-root/\$project-name"
-    echo "then starts a service as described in ./traefik-compose.yml"
-    echo
-    echo -e "\t-h, --help\t\tshow this help message and exit"
-    echo -e "\t-p, --project-name\tdirname for project traefik files"
-    echo
-    echo -e "\t-t, --traefik-root\troot dir for traefik, default /opt/traefik"
-    echo -e "\t-a, --admin\t\temail address to register the acme challenges against"
-    echo -e "\t-u, --docker-domain\t\domain to assign to the docker provider on traefik.toml"
-    echo -e "\t-d, --dry-run\t\flag to run without making any changes"
-    echo
-    echo -e ${SCRIPT_WARNING}
-    echo
+cat << EOF
+Usage: traefikinit [OPTIONS]
+     
+Initial setup for traefik with docker"
+Creates traefik scaffolding under <traefik-root>/<project-name>
+then starts a service as described in ./traefik-compose.yml"
+    
+    -h, --help              show this help message and exit
+    -t, --traefik-root      root dir for traefik, default /opt/traefik
+    -p, --project-name      dirname for project traefik files
+    -a, --admin             email address to register the acme challenges against
+    -u, --docker-domain     domain to assign to the docker provider on traefik.toml
+    -d, --dry-run           flag to run without making any changes
+
+EOF
+echo -e ${SCRIPT_WARNING}
 }
 
 if ! docker_loc="$(type -p "docker")" || [[ -z $docker_loc ]]; then
