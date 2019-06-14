@@ -17,6 +17,7 @@ func NewSqlite3PlayerStore(file string) *Sqlite3PlayerStore {
 	return &Sqlite3PlayerStore{db}
 }
 
+// Sqlite3PlayerStore
 type Sqlite3PlayerStore struct {
 	db *gorm.DB
 }
