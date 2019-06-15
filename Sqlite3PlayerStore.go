@@ -25,6 +25,7 @@ func NewSqlite3PlayerStore(file string) (*Sqlite3PlayerStore, func()) {
 	return &Sqlite3PlayerStore{db}, removeDatabase
 }
 
+// Sqlite3PlayerStore
 type Sqlite3PlayerStore struct {
 	db *gorm.DB
 }
