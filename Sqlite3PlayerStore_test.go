@@ -1,4 +1,4 @@
-package main
+package poker
 
 import (
 	"reflect"
@@ -20,7 +20,7 @@ func TestCreatePlayer(t *testing.T) {
 		player := Player{Name: name1, Wins: 0}
 		err := store.CreatePlayer(player)
 		var p Player
-		store.db.Where("name = ?", name1).First(&p)
+		store.DB.Where("name = ?", name1).First(&p)
 		if p.Name != name1 {
 			t.Errorf("got '%s' want '%s'", p.Name, name1)
 		}

@@ -1,4 +1,4 @@
-package main
+package poker
 
 import (
 	"errors"
@@ -27,30 +27,30 @@ func NewSqlite3PlayerStore(file string) (*Sqlite3PlayerStore, func()) {
 
 // Sqlite3PlayerStore
 type Sqlite3PlayerStore struct {
-	db *gorm.DB
+	DB *gorm.DB
 }
 
 func (s *Sqlite3PlayerStore) GetPlayerScore(name string) int {
 	var player Player
-	s.db.First(&player)
+	s.DB.First(&player)
 	return player.Wins
 }
 func (s *Sqlite3PlayerStore) RecordWin(name string) {
 	var player Player
-	s.db.FirstOrCreate(&player, Player{Name: name})
+	s.DB.FirstOrCreate(&player, Player{Name: name})
 	player.Wins = player.Wins + 1
-	s.db.Save(&player)
+	s.DB.Save(&player)
 }
 
 func (s *Sqlite3PlayerStore) GetLeague() League {
 	var players League
-	s.db.Select([]string{"name", "wins"}).Order("wins desc, name").Find(&players)
+	s.DB.Select([]string{"name", "wins"}).Order("wins desc, name").Find(&players)
 	return players
 }
 
 func (s *Sqlite3PlayerStore) CreatePlayer(player Player) error {
-	s.db.NewRecord(player)
-	res := s.db.Create(&player)
+	s.DB.NewRecord(player)
+	res := s.DB.Create(&player)
 	if res.Error != nil {
 		return ErrRecordAlreadyExists
 	}
