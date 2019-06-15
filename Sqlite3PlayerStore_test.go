@@ -1,6 +1,7 @@
 package main
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -54,6 +55,25 @@ func TestCreatePlayer(t *testing.T) {
 		got := store.GetPlayerScore(name1)
 		want := 1
 		assertScoreEquals(t, got, want)
+	})
+	t.Run("league should return ordered by wins, then name", func(t *testing.T) {
+		store, removeStore := NewSqlite3PlayerStore(testDBName)
+		defer removeStore()
+
+		store.CreatePlayer(Player{Name: "A", Wins: 1})
+		store.CreatePlayer(Player{Name: "B", Wins: 3})
+		store.CreatePlayer(Player{Name: "C", Wins: 2})
+		store.CreatePlayer(Player{Name: "D", Wins: 1})
+		got := store.GetLeague()
+		want := League{
+			{Name: "B", Wins: 3},
+			{Name: "C", Wins: 2},
+			{Name: "A", Wins: 1},
+			{Name: "D", Wins: 1},
+		}
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got \n%v \nwant \n%v", got, want)
+		}
 	})
 
 }
