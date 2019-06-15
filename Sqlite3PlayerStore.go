@@ -44,7 +44,7 @@ func (s *Sqlite3PlayerStore) RecordWin(name string) {
 
 func (s *Sqlite3PlayerStore) GetLeague() League {
 	var players League
-	s.db.Select([]string{"name", "wins"}).Find(&players)
+	s.db.Select([]string{"name", "wins"}).Order("wins desc, name").Find(&players)
 	return players
 }
 

@@ -109,37 +109,6 @@ func TestLeague(t *testing.T) {
 	})
 }
 
-func TestRecordingWinsAndRetrievingThem(t *testing.T) {
-
-	database, cleanDatabase := createTempFile(t, "")
-	defer cleanDatabase()
-	store := &FileSystemPlayerStore{database}
-	server := NewPlayerServer(store)
-	player := "Pepper"
-
-	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-
-	t.Run("get score", func(t *testing.T) {
-		response := httptest.NewRecorder()
-		server.ServeHTTP(response, newGetScoreRequest(player))
-		assertStatus(t, response.Code, http.StatusOK)
-		assertResponseBody(t, response.Body.String(), "3")
-	})
-	t.Run("get league", func(t *testing.T) {
-		response := httptest.NewRecorder()
-		server.ServeHTTP(response, newLeagueRequest())
-		assertStatus(t, response.Code, http.StatusOK)
-		got := getLeagueFromResponse(t, response.Body)
-		want := League{
-			{Name: "Pepper", Wins: 3},
-		}
-		assertLeague(t, got, want)
-	})
-
-}
-
 // TestSqlite3PlayerStore integration test
 func TestSqlite3PlayerStore(t *testing.T) {
 	const testDBName = "test_db.db"
@@ -169,67 +138,6 @@ func TestSqlite3PlayerStore(t *testing.T) {
 		}
 		assertLeague(t, got, want)
 	})
-}
-
-func TestFileSystemPlayerStore(t *testing.T) {
-	const testJSON = `[
-	{"Name": "David", "Wins": 5},
-	{"Name": "Elena", "Wins": 33}
-]`
-	t.Run("/league from a reader", func(t *testing.T) {
-		database, cleanDatabase := createTempFile(t, testJSON)
-		defer cleanDatabase()
-
-		store := FileSystemPlayerStore{database}
-
-		got := store.GetLeague()
-		want := League{
-			{Name: "David", Wins: 5},
-			{Name: "Elena", Wins: 33},
-		}
-		assertLeague(t, got, want)
-
-		got = store.GetLeague()
-		assertLeague(t, got, want)
-
-	})
-
-	t.Run("get player score", func(t *testing.T) {
-		database, cleanDatabase := createTempFile(t, testJSON)
-		defer cleanDatabase()
-
-		store := FileSystemPlayerStore{database}
-
-		got := store.GetPlayerScore("Elena")
-		want := 33
-		assertScoreEquals(t, got, want)
-	})
-
-	t.Run("strore wins for existing players", func(t *testing.T) {
-		database, cleanDatabase := createTempFile(t, testJSON)
-		defer cleanDatabase()
-
-		store := FileSystemPlayerStore{database}
-
-		store.RecordWin("David")
-
-		got := store.GetPlayerScore("David")
-		want := 6
-		assertScoreEquals(t, got, want)
-	})
-	t.Run("strore wins for new players", func(t *testing.T) {
-		database, cleanDatabase := createTempFile(t, testJSON)
-		defer cleanDatabase()
-
-		store := FileSystemPlayerStore{database}
-
-		store.RecordWin("Jazmin")
-
-		got := store.GetPlayerScore("Jazmin")
-		want := 1
-		assertScoreEquals(t, got, want)
-	})
-
 }
 
 type StubPlayerStore struct {
