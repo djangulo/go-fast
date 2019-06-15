@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	testDBName = ":memory:"
+	testDBName = "test_db.db"
 	name1      = "Peter"
 	name2      = "John"
 )
@@ -13,8 +13,8 @@ const (
 func TestCreatePlayer(t *testing.T) {
 
 	t.Run("create", func(t *testing.T) {
-		store := NewSqlite3PlayerStore(testDBName)
-		defer store.db.Close()
+		store, removeStore := NewSqlite3PlayerStore(testDBName)
+		defer removeStore()
 
 		player := Player{Name: name1, Wins: 0}
 		err := store.CreatePlayer(player)
@@ -25,17 +25,35 @@ func TestCreatePlayer(t *testing.T) {
 		}
 		assertNoError(t, err)
 	})
-	t.Run("error on unique field", func(t *testing.T) {
-		store := NewSqlite3PlayerStore(testDBName)
-		defer store.db.Close()
+	t.Run("error on creating existing name", func(t *testing.T) {
+		store, removeStore := NewSqlite3PlayerStore(testDBName)
+		defer removeStore()
 
 		player1 := Player{Name: name1, Wins: 0}
 		player2 := Player{Name: name1, Wins: 0}
-		player3 := Player{Name: name2, Wins: 0}
 		store.CreatePlayer(player1)
-		store.CreatePlayer(player3)
 		err := store.CreatePlayer(player2)
 		assertError(t, err, ErrRecordAlreadyExists)
+	})
+	t.Run("store wins for existing player", func(t *testing.T) {
+		store, removeStore := NewSqlite3PlayerStore(testDBName)
+		defer removeStore()
+
+		player := Player{Name: name1, Wins: 0}
+		store.CreatePlayer(player)
+		store.RecordWin(name1)
+		got := store.GetPlayerScore(name1)
+		want := 1
+		assertScoreEquals(t, got, want)
+	})
+	t.Run("store wins for new player", func(t *testing.T) {
+		store, removeStore := NewSqlite3PlayerStore(testDBName)
+		defer removeStore()
+
+		store.RecordWin(name1)
+		got := store.GetPlayerScore(name1)
+		want := 1
+		assertScoreEquals(t, got, want)
 	})
 
 }

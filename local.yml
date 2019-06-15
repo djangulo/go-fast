@@ -6,6 +6,5 @@ services:
       context: .
       dockerfile: ./deployments/local/go/Dockerfile
     image: go_fast_local
-    restart: always
     ports:
       - '127.0.0.1:9000:9000'

@@ -28,7 +28,7 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 type PlayerStore interface {
 	GetPlayerScore(name string) int
 	RecordWin(name string)
-	GetLeague() []Player
+	GetLeague() League
 }
 
 func (p *PlayerServer) rootHandler(w http.ResponseWriter, r *http.Request) {
@@ -49,8 +49,8 @@ func (p *PlayerServer) playersHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (p *PlayerServer) getLeagueTable() []Player {
-	return []Player{
+func (p *PlayerServer) getLeagueTable() League {
+	return League{
 		{Name: "Denis", Wins: 20},
 	}
 }
