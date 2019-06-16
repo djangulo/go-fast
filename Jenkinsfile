@@ -7,7 +7,6 @@ properties([
         )
     ]
 )])
-
 node {
     stage('Checkout') {
         echo "Fetching branch"
