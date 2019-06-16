@@ -1,11 +1,6 @@
-import groovy.json.JsonSlurper
+// import groovy.json.JsonSlurper
 properties([
     parameters([
-        string(
-            defaultValue: '[{"default": "No data"}]',
-            description: 'GitHub push event',
-            name: 'payload'
-        ),
         string(
             defaultValue: 'dev',
             description: 'Branch to build on',
@@ -14,10 +9,10 @@ properties([
     ]
 )])
 
-def slurper = new JsonSlurper()
-def payload = slurper.parseText(params.payload)
-def refID = payload.head_commit.id
-def message = payload.head_commit.message
+// def slurper = new JsonSlurper()
+// def payload = slurper.parseText(params.payload)
+// def refID = payload.head_commit.id
+// def message = payload.head_commit.message
 node {
     stage('Checkout') {
         echo "Fetching branch"
