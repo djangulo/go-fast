@@ -1,5 +1,4 @@
 import groovy.json.JsonSlurper
-
 properties([
     parameters([
         string(
@@ -13,7 +12,6 @@ def slurper = new JsonSlurper()
 def payload = slurper.parseText(params.payload)
 def refID = payload.head_commit.id
 def message = payload.head_commit.message
-
 node {
     stage('Checkout') {
         echo "Fetching branch"
