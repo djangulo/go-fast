@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/djangulo/go-fast"
+	"github.com/djangulo/go-fast/config"
 	"log"
 	"net/http"
 )
@@ -22,7 +23,7 @@ func init() {
 func main() {
 	flag.Parse()
 	fmt.Println("Listening at 127.0.0.1:" + port)
-	store, _ := poker.NewSqlite3PlayerStore("database.sqlite3")
+	store, _ := poker.NewSqlite3PlayerStore(config.DatabaseFilename)
 	defer store.DB.Close()
 	server := poker.NewPlayerServer(store)
 	if err := http.ListenAndServe(":"+port, server); err != nil {
