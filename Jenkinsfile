@@ -66,7 +66,7 @@ node {
             withCredentials([sshUserPrivateKey(credentialsId: 'f6872e14-d6aa-467d-b9d5-cb87b1aa9efa', keyFileVariable: 'SSHKEYFILE')]) {
                 sh 'git checkout staging'
                 sh 'git merge dev'
-                sh "git commit -m \"Jenkins build: ${env.BUILD_ID}, ref: ${refID}, ogMsg: ${message}\""
+                sh "git commit -m \"Jenkins build: ${env.BUILD_ID}\""
                 sh 'git push origin staging'
             }
         }
