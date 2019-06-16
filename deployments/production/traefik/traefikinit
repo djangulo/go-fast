@@ -93,89 +93,82 @@ fi
 
 traefik_path="${troot}"/"${snake_pname}"
 if [ ! -d $troot ]; then
-    message_info "$troot does not exist, creating dir $traefik_path"
+    message_info "$troot does not exist, creating dir $troot"
     if [ "$dryrun" = false ]; then
-        mkdir -p "${traefik_path}"
+        mkdir -p "${troot}"
     fi
 else
-    if [ ! -d $traefik_path ]; then
-        message_info "$troot dir exists, creating dir $traefik_path"
-        if [ "$dryrun" = false ]; then
-            mkdir -p "${traefik_path}"
-        fi
-    else
-        message_info "$traefik_path dir exists, no changes"
-    fi
+        message_info "$troot dir exists, no changes"
 fi
 
 if [[ -z "${host}" ]]; then
-    message_warning "--docker-domain not set, you will need to make manual changes to ${traefik_path}/traefik.toml"
+    message_warning "--docker-domain not set, you will need to make manual changes to ${troot}/traefik.toml"
 else
     message_info "docker domain: ${host}"
 fi
 
 if [[ -z "${admin}" ]]; then
-    message_warning "--admin not set, you will need to make manual changes to ${traefik_path}/traefik.toml"
+    message_warning "--admin not set, you will need to make manual changes to ${troot}/traefik.toml"
 else
     message_info "admin email: ${admin}"
 fi
 
-if [ -f "$traefik_path/traefik.toml" ]; then
-    message_info "$traefik_path/traefik.toml found, leaving uchanged"
+if [ -f "$troot/traefik.toml" ]; then
+    message_info "$troot/traefik.toml found, leaving uchanged"
 else
     if [ "$dryrun" = false ]; then
-        message_info "Copying $working_dir/traefik.toml => $traefik_path/traefik.toml"
-        cp $working_dir/traefik.toml $traefik_path/traefik.toml
-        sed -i 's/\r//g' $traefik_path/traefik.toml
+        message_info "Copying $working_dir/traefik.toml => $troot/traefik.toml"
+        cp $working_dir/traefik.toml $troot/traefik.toml
+        sed -i 's/\r//g' $troot/traefik.toml
         if [[ ! -z "${admin}" ]]; then
-            message_info "Setting $traefik_path/traefik.toml admin = $admin"
-            sed -i "s/ADMIN_EMAIL/${admin}/g" $traefik_path/traefik.toml
+            message_info "Setting $troot/traefik.toml admin = $admin"
+            sed -i "s/ADMIN_EMAIL/${admin}/g" $troot/traefik.toml
         fi
         if [[ ! -z "${host}" ]]; then
-        message_info "Setting $traefik_path/traefik.toml docker domain = $host"
-            sed -i "s#\"DOCKER_DOMAIN\"#\"${host}\"#g" $traefik_path/traefik.toml
+        message_info "Setting $troot/traefik.toml docker domain = $host"
+            sed -i "s#\"DOCKER_DOMAIN\"#\"${host}\"#g" $troot/traefik.toml
         fi
     fi
 fi
 
-if [ -f "$traefik_path/acme.json" ]; then
-    message_info "$traefik_path/acme.json found, leaving uchanged"
+if [ -f "$troot/acme.json" ]; then
+    message_info "$troot/acme.json found, leaving uchanged"
 else
     if [ "$dryrun" = false ]; then
-        message_info "Creating blank $traefik_path/acme.json"
-        touch $traefik_path/acme.json
-        chmod 600 $traefik_path/acme.json
+        message_info "Creating blank $troot/acme.json"
+        touch $troot/acme.json
+        chmod 600 $troot/acme.json
     fi
 fi
 
-if [ -f "$traefik_path/docker-compose.yaml" ]; then
-    message_info "$traefik_path/docker-compose.yaml found, leaving uchanged"
+if [ -f "$troot/docker-compose.yml" ]; then
+    message_info "$troot/docker-compose.yml found, leaving uchanged"
 else
     if [ "$dryrun" = false ]; then
-        message_info "Copying $working_dir/docker-compose.yml => $traefik_path/docker-compose.yml"
-        cp $working_dir/docker-compose.yml $traefik_path/docker-compose.yml
-        sed -i 's/\r//g' $traefik_path/docker-compose.yml
+        message_info "Copying $working_dir/docker-compose.yml => $troot/docker-compose.yml"
+        cp $working_dir/docker-compose.yml $troot/docker-compose.yml
+        sed -i 's/\r//g' $troot/docker-compose.yml
     fi
 fi
 
 message_success "Traefik-docker scaffolding created succesfully"
 if ! tree_loc="$(type -p "tree")" || [[ -z $tree_loc ]]; then
-    ls -la ${traefik_path}
+    ls -la ${troot}
 else
-    tree ${traefik_path}
+    tree ${troot}
 fi
 
 
 
 if [[ -z "${networks}" ]]; then
-    $working_dir/insert_network -i $split_net "$traefik_path/docker-compose.yml"
+    $working_dir/insert_network -i $split_net "$troot/docker-compose.yml"
 else
     for network in $split_net
     do
         if [ "$dryrun" = false ]; then
-            $working_dir/insert_network -i $network "$traefik_path/docker-compose.yml"
+            $working_dir/insert_network -i $network "$troot/docker-compose.yml"
         else
-            $working_dir/insert_network $network "$traefik_path/docker-compose.yml"
+            $working_dir/insert_network $network "$troot/docker-compose.yml"
         fi
     done
 fi
