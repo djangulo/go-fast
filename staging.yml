@@ -26,6 +26,7 @@ services:
       - 'traefik.admin.protocol=https'
       - 'traefik.admin.port=9443'
       - 'traefik.admin.port=9443'
+      - 'traefik.admin.auth.basic=Users:["djangulo:abcdef1234"]'
 
 networks:
   go_fast_staging:
