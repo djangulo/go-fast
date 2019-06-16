@@ -3,7 +3,7 @@ import groovy.json.JsonSlurper
 properties([
     parameters([
         string(
-            defaultValue: '',
+            defaultValue: '[{"default": "No data"}]',
             description: 'GitHub push event',
             name: 'payload'
         )
