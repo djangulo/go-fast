@@ -6,5 +6,5 @@ COPY . .
 RUN go get -d -v ./...
 RUN go install -v ./...
 
-CMD ["go-fast"]
+CMD ["webserver"]
 

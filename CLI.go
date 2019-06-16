@@ -24,7 +24,7 @@ func (cli *CLI) PlayPoker() {
 }
 
 func extractWinner(userInput string) string {
-	return strings.Replace(strings.ToLower(userInput), " wins", "", 1)
+	return strings.Replace(userInput, " wins", "", 1)
 }
 
 func (cli *CLI) readLine() string {
