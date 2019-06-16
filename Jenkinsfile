@@ -83,7 +83,7 @@ echo $docker_machine_output
 # Create traefik root & home for build files
 docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "mkdir -p /opt/traefik"
 docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "mkdir -p /opt/traefik-files/"
-docker-machine scp -r $DIGITALOCEAN_DROPLET_NAME ./deployments/production/traefik/ /opt/traefik-files/
+docker-machine scp -r ./deployments/production/traefik/ $DIGITALOCEAN_DROPLET_NAME:/opt/traefik-files/
 docker-machine --native-ssh ssh $DIGITALOCEAN_DROPLET_NAME "chmod +x /opt/traefik-files/traefikinit /opt/traefik-files/insert_network"
 # initialize traefik
 # init both staging and production networks
