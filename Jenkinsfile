@@ -1,8 +1,14 @@
 import groovy.json.JsonSlurper
 
-properties(parameters([
-    string(defaultValue: "", description: "GitHub payload", name: "payload")
-]))
+properties([
+    parameters([
+        string(
+            defaultValue: '',
+            description: 'GitHub push event',
+            name: 'payload'
+        )
+    ]
+)])
 def slurper = new JsonSlurper()
 def payload = slurper.parseText(params.payload)
 def refID = payload.head_commit.id
