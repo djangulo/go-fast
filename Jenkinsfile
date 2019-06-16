@@ -12,7 +12,6 @@ properties([
 def slurper = new JsonSlurper()
 def payload = slurper.parseText(params.payload)
 def refID = payload.head_commit.id
-def oid = payload.after
 def message = payload.head_commit.message
 node {
     stage('Checkout') {
