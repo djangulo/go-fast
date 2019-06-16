@@ -86,9 +86,9 @@ docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "mkdir -p /opt/trae
 for fname in {traefikinit,traefik.toml,insert_network,docker-compose.yml,constants.sh,messages.sh}
 do
     if [ "$fname" = "constants.sh" || "$fname" = "messages.sh" ]; then
-        docker-machine scp -d ./deployments/production/traefik/$fname $DIGITALOCEAN_DROPLET_NAME:/opt/traefik-files/_sourced/$fname
+        docker-machine scp ./deployments/production/traefik/$fname $DIGITALOCEAN_DROPLET_NAME:/opt/traefik-files/_sourced/$fname
     else
-        docker-machine scp -d ./deployments/production/traefik/$fname $DIGITALOCEAN_DROPLET_NAME:/opt/traefik-files/$fname
+        docker-machine scp ./deployments/production/traefik/$fname $DIGITALOCEAN_DROPLET_NAME:/opt/traefik-files/$fname
     fi
 done
 docker-machine --native-ssh ssh $DIGITALOCEAN_DROPLET_NAME "chmod +x /opt/traefik-files/traefikinit /opt/traefik-files/insert_network"
