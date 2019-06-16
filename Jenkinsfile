@@ -5,6 +5,11 @@ properties([
             defaultValue: '[{"default": "No data"}]',
             description: 'GitHub push event',
             name: 'payload'
+        ),
+        string(
+            defaultValue: 'dev',
+            description: 'Branch to build on',
+            name: 'branch'
         )
     ]
 )])
@@ -21,7 +26,7 @@ node {
                 $class: 'GitSCM',
                 branches: [
                     [
-                        name: 'refs/heads/dev'
+                        name: "refs/heads/${params.branch}"
                     ]
                 ],
             doGenerateSubmoduleConfigurations: false,
