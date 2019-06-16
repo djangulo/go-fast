@@ -59,10 +59,9 @@ node {
         stage('Commit to staging branch') {
             withCredentials([sshUserPrivateKey(credentialsId: 'f6872e14-d6aa-467d-b9d5-cb87b1aa9efa', keyFileVariable: 'SSHKEYFILE')]) {
                 sh 'git pull origin staging'
-                sh 'git checkout staging'
-                sh 'git merge dev'
-                sh "git commit -m \"Jenkins build: ${env.BUILD_TAG}\" 2>&0"
-                sh 'git push origin staging 2>&0'
+                sh 'git merge staging dev'
+                sh "git commit --amend -m \"Jenkins build: ${env.BUILD_TAG}\""
+                sh 'git push origin staging'
             }
         }
         stage('Deploy to staging server') {
