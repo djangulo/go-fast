@@ -8,6 +8,7 @@ properties([
         )
     ]
 )])
+
 def slurper = new JsonSlurper()
 def payload = slurper.parseText(params.payload)
 def refID = payload.head_commit.id
