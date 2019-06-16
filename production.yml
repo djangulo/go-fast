@@ -16,10 +16,10 @@ services:
     labels:
       - 'traefik.docker.network=go_fast_production'
       - 'traefik.enable=true'
-      - 'traefik.basic.frontend.rule=Host:go-fast.linekode.com'
+      - 'traefik.basic.frontend.rule=Host:go-fast.djangulo.com'
       - 'traefik.basic.port=10000'
       - 'traefik.basic.protocol=http'
-      - 'traefik.admin.frontend.rule=Host:gofast-admin.linekode.com'
+      - 'traefik.admin.frontend.rule=Host:gofast-admin.djangulo.com'
       - 'traefik.admin.protocol=https'
       - 'traefik.admin.port=10443'
 

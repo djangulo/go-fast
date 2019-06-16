@@ -19,10 +19,10 @@ services:
     labels:
       - 'traefik.docker.network=go_fast_staging'
       - 'traefik.enable=true'
-      - 'traefik.basic.frontend.rule=Host:go-fast-staging.linekode.com'
+      - 'traefik.basic.frontend.rule=Host:go-fast-staging.djangulo.com'
       - 'traefik.basic.port=9000'
       - 'traefik.basic.protocol=http'
-      - 'traefik.admin.frontend.rule=Host:gofast-staging-admin.linekode.com'
+      - 'traefik.admin.frontend.rule=Host:gofast-staging-admin.djangulo.com'
       - 'traefik.admin.protocol=https'
       - 'traefik.admin.port=9443'
 

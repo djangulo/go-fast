@@ -69,9 +69,9 @@ node {
             sh label: '', script: '''
 #!/bin/sh
 export DIGITALOCEAN_DROPLET_NAME=pet-projects
-export DIGITALOCEAN_ACCESS_TOKEN=$(cat ~/.digitalocean-apikey)
+export DIGITALOCEAN_ACCESS_TOKEN=$(cat ~/.djangulo-do-apikey)
 export DIGITALOCEAN_REGION=nyc3
-export DIGITALOCEAN_DOMAIN=go-fast-staging.linekode.com
+export DIGITALOCEAN_DOMAIN=go-fast-staging.djangulo.com
 export DIGITAL_OCEAN_SSH_KEY_PATH=$HOME/.ssh/id_rsa.pub
 export DIGITALOCEAN_SSH_PUBKEY_NAME="Jenkins-CI key (djal@tuta.io)"
 export COMPOSE_TLS_VERSION=TLSv1_2
@@ -82,12 +82,15 @@ echo $docker_machine_output
 
 # Create traefik root & home for build files
 docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "mkdir -p /opt/traefik"
-docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "mkdir -p /opt/traefik-files/"
-docker-machine scp -r ./deployments/production/traefik/* $DIGITALOCEAN_DROPLET_NAME:/opt/traefik-files/
+docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "mkdir -p /opt/traefik-files/_sourced"
+for fname in {traefikinit,traefik.toml,insert_network,docker-compose.yml,_sourced/constants.sh,_sourced/messages.sh}
+do
+    docker-machine scp -d ./deployments/production/traefik/$fname $DIGITALOCEAN_DROPLET_NAME:/opt/traefik-files/$fname
+done
 docker-machine --native-ssh ssh $DIGITALOCEAN_DROPLET_NAME "chmod +x /opt/traefik-files/traefikinit /opt/traefik-files/insert_network"
 # initialize traefik
 # init both staging and production networks
-docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "/opt/traefik-files/traefikinit -t /opt/traefik -p go-fast -a djal@tuta.io -u docker.linekode.com -n go_fast_staging,go_fast_production"
+docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "/opt/traefik-files/traefikinit -t /opt/traefik -p go-fast -a djal@tuta.io -u docker.djangulo.com -n go_fast_staging,go_fast_production"
 docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "docker-compose -f /opt/traefik/docker-compose.yml up -d"
 eval $(docker-machine env $DIGITALOCEAN_DROPLET_NAME)
 docker-compose -f staging.yml up -d --build
@@ -119,9 +122,9 @@ docker-compose -f staging.yml run --rm app go test -v
                 sh label: '', script: '''
 #!/bin/sh
 export DIGITALOCEAN_DROPLET_NAME=pet-projects
-export DIGITALOCEAN_ACCESS_TOKEN=$(cat ~/.digitalocean-apikey)
+export DIGITALOCEAN_ACCESS_TOKEN=$(cat ~/.djangulo-do-apikey)
 export DIGITALOCEAN_REGION=nyc3
-export DIGITALOCEAN_DOMAIN=go-fast.linekode.com
+export DIGITALOCEAN_DOMAIN=go-fast.djangulo.com
 export DIGITAL_OCEAN_SSH_KEY_PATH=$HOME/.ssh/id_rsa.pub
 export DIGITALOCEAN_SSH_PUBKEY_NAME="Jenkins-CI key (djal@tuta.io)"
 export COMPOSE_TLS_VERSION=TLSv1_2
