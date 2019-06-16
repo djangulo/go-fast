@@ -1,3 +1,13 @@
+import groovy.json.JsonSlurper
+
+properties(parameters([
+    string(defaultValue: "", description: "GitHub payload", name: "payload")
+]))
+def slurper = new JsonSlurper()
+def payload = slurper.parseText(params.payload)
+def refID = payload.head_commit.id
+def message = payload.head_commit.message
+
 node {
     stage('Checkout') {
         echo "Fetching branch"
@@ -50,7 +60,8 @@ node {
         stage('Commit to staging branch') {
             withCredentials([sshUserPrivateKey(credentialsId: 'f6872e14-d6aa-467d-b9d5-cb87b1aa9efa', keyFileVariable: 'SSHKEYFILE')]) {
                 sh 'git checkout staging'
-                sh 'git merge origin/dev'
+                sh 'git merge dev'
+                sh "git commit -m \"Jenkins build: ${env.BUILD_ID}, ref: ${refID}, ogMsg: ${message}\""
                 sh 'git push origin staging'
             }
         }
