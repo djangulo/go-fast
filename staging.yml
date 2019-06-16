@@ -11,16 +11,21 @@ services:
     image: go_fast_staging_app
     restart: always
     command: /webserver
+    expose:
+      - '9000'
+    networks:
+      - go_fast_staging
+      - default
+    labels:
+      - 'traefik.docker.network=go_fast_staging'
+      - 'traefik.enable=true'
+      - 'traefik.basic.frontend.rule=Host:go-fast-staging.linekode.com'
+      - 'traefik.basic.port=9000'
+      - 'traefik.basic.protocol=http'
+      - 'traefik.admin.frontend.rule=Host:gofast-staging-admin.linekode.com'
+      - 'traefik.admin.protocol=https'
+      - 'traefik.admin.port=9443'
 
-  traefik:
-    build:
-      context: .
-      dockerfile: ./deployments/production/traefik/Dockerfile.singleton
-    image: go_fast_staging_traefik
-    depends_on:
-      - app
-    volumes:
-      - production_traefik:/etc/traefik/acme
-    ports:
-      - '0.0.0.0:80:80'
-      - '0.0.0.0:443:443'
+networks:
+  go_fast_staging:
+    external: true

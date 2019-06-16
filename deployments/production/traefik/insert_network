@@ -48,7 +48,8 @@ for arg in  "$@"; do
 done
 
 set -- "${args[@]}"
-echo "${args}"
+# echo "${args}"
+# echo $inplace
 
 network_name="${args[0]}"
 target_file="${args[1]}"
@@ -76,12 +77,13 @@ then
             sed -i "/${snake_network}:$/,+1d" $target_file
             grep -v "\- ${snake_network}$" $target_file > tmpfile; mv tmpfile $target_file
             message_success "Network \e[33m${snake_network}\e[0m removed from ${target_file}"
-        fi
+        else
         message_info "No -i option"
         sed "/${snake_network}:$/,+1d" $target_file | grep -v "\- ${snake_network}$"
+        fi
     else
         message_error "Network \e[33m${snake_network}\e[0m is already in ${target_file}"
-        exit 1
+        exit 0
     fi
 else
     if [ "$remove" = true ]; then
@@ -92,11 +94,32 @@ else
             sed -i -e '/^networks:/a\' -e "${tab_char}${snake_network}:\n${tab_char}${tab_char}external: true" $target_file
             sed -i  -e "/^${tab_char}${tab_char}networks:/a\\" -e "${tab_char}${tab_char}${tab_char}- ${snake_network}" $target_file
             message_success "Network \e[33m${snake_network}\e[0m added to ${target_file}"
-        fi
+        else
         message_info "No -i option"
         sed -e '/^networks:/a\' -e "${tab_char}${snake_network}:\n${tab_char}${tab_char}external: true" $target_file  | 
             sed -e "/^${tab_char}${tab_char}networks:/a\\" -e "${tab_char}${tab_char}${tab_char}- ${snake_network}"
+        fi
     fi
 fi
+
+
+if [ "$remove" = true ]; then
+    net_remove_error=$(docker network remove "${snake_network}" 2>&1 | tr -d '\r')
+    net_remove_out=$?
+    if [ $net_remove_out -eq 1 ]; then
+        message_error "$net_remove_error"
+    else
+        message_success "Network \e[33m${snake_network}\e[0m removed succesfully"
+    fi
+else
+    net_create_error=$(docker network create "${snake_network}" 2>&1 | tr -d '\r')
+    net_create_out=$?
+    if [ $net_create_out -eq 1 ]; then
+        message_error "$net_create_error"
+    else
+        message_success "Network \e[33m${snake_network}\e[0m created succesfully"
+    fi
+fi
+
 
 message_suggestion "Traefik's compose file (${target_file}) has been updated, rebuild your containers"

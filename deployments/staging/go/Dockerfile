@@ -1,16 +1,8 @@
 # alpine builds fail to install go packages
-FROM golang:1.12.5 as builder
+FROM golang:1.12.5
 LABEL maintainer="Denis Angulo <djal@tuta.io>"
 WORKDIR $GOPATH/src/github.com/djangulo/go-fast/
 COPY . .
 RUN go get -d -v ./...
-RUN CGO_ENABLED=0 GOOS=linux go build -x -p 1 -a -installsuffix cgo -o $GOPATH/bin/webserver
-
-
-FROM alpine:latest
-
-RUN apk --no-cache add ca-certificates
-WORKDIR /
-COPY --from=builder /go/bin/webserver .
-EXPOSE 9000
+RUN go install -v ./...
 

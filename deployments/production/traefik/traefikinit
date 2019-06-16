@@ -22,6 +22,9 @@ then starts a service as described in ./traefik-compose.yml"
     -p, --project-name      dirname for project traefik files
     -a, --admin             email address to register the acme challenges against
     -u, --docker-domain     domain to assign to the docker provider on traefik.toml
+    -n, --networks          comma separated list of networks to insert in traefik
+                            compose file, these networks need to be added manually
+                            to your own docker compose
     -d, --dry-run           flag to run without making any changes
 
 EOF
@@ -47,6 +50,7 @@ while [ "$1" != "" ]; do
         -u|--docker-domain) host="$2"; shift;;
         -a|--admin)         admin="$2"; shift;;
         -d|--dry-run)       dryrun="$2"; shift;;
+        -n|--networks)   networks="$2"; shift;;
         -h|-\?|--help)      show_help; exit;;
         -*|--*=)            message_error "Unsuported arg $2"; show_help; exit 1;;
         *)               # Default case: No more options, so break out of the loop.
@@ -75,6 +79,15 @@ if [[ -z "${troot}" ]]; then
     message_info "traefik-root [dir] not set, defaulting to: ${troot}"
 else
     message_info "traefik-root: ${troot}"
+fi
+
+if [[ -z "${networks}" ]]; then
+    networks="${snake_pname}_web"
+    message_info "no --networks passed in, defaulting to: ${snake_pname}_web"
+    split_net="${snake_pname}_web"
+else
+    message_info "networks: ${networks}"
+    split_net=$(echo $networks | tr "," "\n")
 fi
 
 traefik_path="${troot}"/"${snake_pname}"
@@ -110,8 +123,8 @@ if [ -f "$traefik_path/traefik.toml" ]; then
     message_info "$traefik_path/traefik.toml found, leaving uchanged"
 else
     if [ "$dryrun" = false ]; then
-        message_info "Copying ./traefik-scale.toml => $traefik_path/traefik.toml"
-        cp ./traefik-scale.toml $traefik_path/traefik.toml
+        message_info "Copying $working_dir/traefik.toml => $traefik_path/traefik.toml"
+        cp $working_dir/traefik.toml $traefik_path/traefik.toml
         sed -i 's/\r//g' $traefik_path/traefik.toml
         if [[ ! -z "${admin}" ]]; then
             message_info "Setting $traefik_path/traefik.toml admin = $admin"
@@ -138,13 +151,9 @@ if [ -f "$traefik_path/docker-compose.yaml" ]; then
     message_info "$traefik_path/docker-compose.yaml found, leaving uchanged"
 else
     if [ "$dryrun" = false ]; then
-        message_info "Copying ./traefik-scale.yml => $traefik_path/docker-compose.yml"
-        cp ./traefik-scale.yml $traefik_path/docker-compose.yml
+        message_info "Copying $working_dir/docker-compose.yml => $traefik_path/docker-compose.yml"
+        cp $working_dir/docker-compose.yml $traefik_path/docker-compose.yml
         sed -i 's/\r//g' $traefik_path/docker-compose.yml
-        sed -i "s/network_web/${snake_pname}_web/g" $traefik_path/docker-compose.yml
-        message_newline
-        message_suggestion "Network to be created: \e[33m${snake_pname}_web\e[0m, modify your production.yml accondingly"
-        message_newline
     fi
 fi
 
@@ -156,19 +165,33 @@ else
 fi
 
 
-message_info "Creating network \e[33m${snake_pname}_web\e[0m"
-echo -e "\tdocker network create ${snake_pname}_web"
-network_create_output=$(docker network create "${snake_pname}_web" 2>&1 | tr -d '\r')
-if [ ${network_create_output:0:5} == "Error" ] || [[ -z "${network_create_output}" ]]; then
-    message_error "$network_create_output"
-    exit 1
+
+if [[ -z "${networks}" ]]; then
+    $working_dir/insert_network -i $split_net "$traefik_path/docker-compose.yml"
 else
-    message_success "Network \e[33m${snake_pname}_web\e[0m created succesfully"
+    for network in $split_net
+    do
+        if [ "$dryrun" = false ]; then
+            $working_dir/insert_network -i $network "$traefik_path/docker-compose.yml"
+        else
+            $working_dir/insert_network $network "$traefik_path/docker-compose.yml"
+        fi
+    done
 fi
 
-message_info "Running docker compose"
-echo -e "\tdocker-compose -f "$traefik_path/docker-compose.yml" up --detach"
-docker-compose -f "$traefik_path/docker-compose.yml" up --detach
+# message_info "Creating networks as  \e[33m${snake_pname}_web\e[0m"
+# echo -e "\tdocker network create ${snake_pname}_web"
+# network_create_output=$(docker network create "${snake_pname}_web" 2>&1 | tr -d '\r')
+# if [ ${network_create_output:0:5} == "Error" ] || [[ -z "${network_create_output}" ]]; then
+#     message_error "$network_create_output"
+#     exit 1
+# else
+#     message_success "Network \e[33m${snake_pname}_web\e[0m created succesfully"
+# fi
+
+# message_info "Running docker compose"
+# echo -e "\tdocker-compose -f "$traefik_path/docker-compose.yml" up --detach"
+# docker-compose -f "$traefik_path/docker-compose.yml" up --detach
 
 
 

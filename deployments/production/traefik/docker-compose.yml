@@ -8,7 +8,6 @@ services:
       - 80:80
       - 443:443
     networks:
-      - network_web
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/traefik/traefik.toml:/traefik.toml
@@ -16,5 +15,3 @@ services:
     container_name: traefik
 
 networks:
-  network_web:
-    external: true
