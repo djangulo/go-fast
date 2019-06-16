@@ -25,6 +25,7 @@ services:
       - 'traefik.admin.frontend.rule=Host:gofast-staging-admin.djangulo.com'
       - 'traefik.admin.protocol=https'
       - 'traefik.admin.port=9443'
+      - 'traefik.admin.port=9443'
 
 networks:
   go_fast_staging:

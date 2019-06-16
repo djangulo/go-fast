@@ -7,7 +7,7 @@ services:
       dockerfile: ./deployments/production/go/Dockerfile
     image: go_fast_production_app
     restart: always
-    command: /webserver -p 10000
+    command: '/webserver -p 10000'
     expose:
       - '10000'
     networks:
@@ -19,9 +19,6 @@ services:
       - 'traefik.basic.frontend.rule=Host:go-fast.djangulo.com'
       - 'traefik.basic.port=10000'
       - 'traefik.basic.protocol=http'
-      - 'traefik.admin.frontend.rule=Host:go-fast-admin.djangulo.com'
-      - 'traefik.admin.protocol=https'
-      - 'traefik.admin.port=10443'
 
 networks:
   go_fast_production:
