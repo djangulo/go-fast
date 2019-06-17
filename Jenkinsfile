@@ -84,7 +84,7 @@ echo $docker_machine_output
 docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "mkdir -p /opt/traefik"
 
 # Copy traefik files into machine
-docker-machine scp ./deployments/production/traefik $DIGITALOCEAN_DROPLET_NAME:/opt/
+docker-machine scp -r -d ./deployments/production/traefik $DIGITALOCEAN_DROPLET_NAME:/opt/
 docker-machine --native-ssh ssh $DIGITALOCEAN_DROPLET_NAME "chmod +x /opt/traefik/traefikinit /opt/traefik/insert_network"
 
 
