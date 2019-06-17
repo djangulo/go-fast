@@ -100,17 +100,6 @@ else
         message_info "$troot dir exists, no changes"
 fi
 
-if [[ -z "${host}" ]]; then
-    message_warning "--docker-domain not set, you will need to make manual changes to ${troot}/traefik.toml"
-else
-    message_info "docker domain: ${host}"
-fi
-
-if [[ -z "${admin}" ]]; then
-    message_warning "--admin not set, you will need to make manual changes to ${troot}/traefik.toml"
-else
-    message_info "admin email: ${admin}"
-fi
 
 if [ -f "$troot/traefik.toml" ]; then
     message_info "$troot/traefik.toml found, leaving uchanged"
@@ -123,14 +112,25 @@ else
         sed -i 's/\r//' $troot/traefik.toml
         if [[ ! -z "${admin}" ]]; then
             message_info "Setting $troot/traefik.toml admin = $admin"
-            sed -i "s/ADMIN_EMAIL/${admin}/g" $troot/traefik.toml
         fi
         if [[ ! -z "${host}" ]]; then
             message_info "Setting $troot/traefik.toml docker domain = $host"
-            sed -i "s#\"DOCKER_DOMAIN\"#\"${host}\"#g" $troot/traefik.toml
         fi
     fi
 fi
+
+if [[ -z "${host}" ]]; then
+    message_warning "--docker-domain not set, you will need to make manual changes to ${troot}/traefik.toml"
+else
+    message_info "docker domain: ${host}"
+fi
+if [[ -z "${admin}" ]]; then
+    message_warning "--admin not set, you will need to make manual changes to ${troot}/traefik.toml"
+else
+    message_info "admin email: ${admin}"
+fi
+sed -i "s/ADMIN_EMAIL/${admin:-ADMIN_EMAIL}/g" $troot/traefik.toml
+sed -i "s#\"DOCKER_DOMAIN\"#\"${host:-DOCKER_HOST}\"#g" $troot/traefik.toml
 
 if [ -f "$troot/acme.json" ]; then
     message_info "$troot/acme.json found, leaving uchanged"
@@ -138,9 +138,9 @@ else
     if [ "$dryrun" = false ]; then
         message_info "Creating empty $troot/acme.json"
         touch $troot/acme.json
-        chmod 600 $troot/acme.json
     fi
 fi
+chmod 600 $troot/acme.json
 
 if [ -f "$troot/docker-compose.yml" ]; then
     message_info "$troot/docker-compose.yml found, leaving uchanged"
@@ -150,10 +150,10 @@ else
             message_info "Copying $working_dir/docker-compose.yml => $troot/docker-compose.yml"
             cp $working_dir/docker-compose.yml $troot/docker-compose.yml
         fi
-        sed -i "s#TRAEFIK_ROOT#${troot}#g" $troot/docker-compose.yml
-        sed -i 's/\r//' $troot/docker-compose.yml
     fi
 fi
+sed -i "s#TRAEFIK_ROOT#${troot}#g" $troot/docker-compose.yml
+sed -i 's/\r//' $troot/docker-compose.yml
 
 message_success "Traefik-docker scaffolding created succesfully"
 if ! tree_loc="$(type -p "tree")" || [[ -z $tree_loc ]]; then
