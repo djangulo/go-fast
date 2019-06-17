@@ -7,7 +7,7 @@ services:
       dockerfile: ./deployments/staging/go/Dockerfile
     image: go_fast_staging_app
     restart: always
-    command: webserver
+    command: /start
     expose:
       - "9000"
     networks:
@@ -19,9 +19,10 @@ services:
       - "traefik.basic.frontend.rule=Host:go-fast-staging.djangulo.com"
       - "traefik.basic.port=9000"
       - "traefik.basic.protocol=http"
-      - "traefik.admin.frontend.rule=Host:gofast-staging-admin.djangulo.com"
+      - "traefik.admin.frontend.rule=Host:go-fast-staging-admin.djangulo.com"
       - "traefik.admin.protocol=https"
       - "traefik.admin.port=9443"
+      - "traefik.admin.frontend.auth.basic.users=djangulo:$$apr1$$h.wPwHEW$$yEgYhPyNr4sn8dy4Nbbs70"
 
 networks:
   go_fast_staging:

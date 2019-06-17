@@ -4,7 +4,7 @@ LABEL maintainer="Denis Angulo <djal@tuta.io>"
 WORKDIR $GOPATH/src/github.com/djangulo/go-fast/
 COPY . .
 RUN go get -d -v ./...
-RUN CGO_ENABLED=0 GOOS=linux go build -x -p 1 -a -installsuffix cgo -o $GOPATH/bin/webserver
+RUN CGO_ENABLED=0 GOOS=linux go build -p 1 -a -installsuffix cgo -o $GOPATH/bin/webserver
 
 
 FROM alpine:latest

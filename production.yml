@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   app:
@@ -9,16 +9,20 @@ services:
     restart: always
     command: /start
     expose:
-      - '10000'
+      - "10000"
     networks:
       - go_fast_production
       - default
     labels:
-      - 'traefik.docker.network=go_fast_production'
-      - 'traefik.enable=true'
-      - 'traefik.basic.frontend.rule=Host:go-fast.djangulo.com'
-      - 'traefik.basic.port=10000'
-      - 'traefik.basic.protocol=http'
+      - "traefik.docker.network=go_fast_production"
+      - "traefik.enable=true"
+      - "traefik.basic.frontend.rule=Host:go-fast.djangulo.com"
+      - "traefik.basic.port=10000"
+      - "traefik.basic.protocol=http"
+      - "traefik.admin.frontend.rule=Host:go-fast-staging-admin.djangulo.com"
+      - "traefik.admin.protocol=https"
+      - "traefik.admin.port=9443"
+      - "traefik.admin.frontend.auth.basic.users=djangulo:$$apr1$$h.wPwHEW$$yEgYhPyNr4sn8dy4Nbbs70"
 
 networks:
   go_fast_production:

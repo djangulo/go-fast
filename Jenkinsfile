@@ -97,16 +97,7 @@ eval $(docker-machine env $DIGITALOCEAN_DROPLET_NAME)
 docker-compose -f staging.yml up -d --build
 '''
         }
-        stage('Run unit, integration and E2E against staging (E2E not available yet') {
-            echo "Running unit & integration tests"
-            sh label: '', script: '''
-#!/bin/sh
-export DIGITALOCEAN_DROPLET_NAME=pet-projects
-export COMPOSE_TLS_VERSION=TLSv1_2
-
-eval $(docker-machine env $DIGITALOCEAN_DROPLET_NAME)
-docker-compose -f staging.yml run --rm app go test -v
-'''
+        stage('Run E2E against staging (not available yet') {
             echo "E2E running..."
         }
         if (currentBuild.currentResult == 'SUCCESS') {
