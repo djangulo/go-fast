@@ -31,23 +31,23 @@ EOF
 echo -e ${SCRIPT_WARNING}
 }
 
-if ! docker_loc="$(type -p "docker")" || [[ -z $docker_loc ]]; then
-    message_error ${DOCKER_REQUIRED}
-    exit 1
-fi
+# if ! docker_loc="$(type -p "docker")" || [[ -z $docker_loc ]]; then
+#     message_error ${DOCKER_REQUIRED}
+#     exit 1
+# fi
 
-if ! compose_loc="$(type -p "docker-compose")" || [[ -z $compose_loc ]]; then
-    message_error "${DOCKER_REQUIRED//docker/docker-compose}, installing docker-compose"
-    curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    chmod +x /usr/local/bin/docker-compose
-fi
+# if ! compose_loc="$(type -p "docker-compose")" || [[ -z $compose_loc ]]; then
+#     message_error "${DOCKER_REQUIRED//docker/docker-compose}, installing docker-compose"
+#     curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+#     chmod +x /usr/local/bin/docker-compose
+# fi
 
 message_warning ${SCRIPT_WARNING}
 
 while [ "$1" != "" ]; do
     case $1 in
         -p|--project-name)  pname="$2"; shift;;
-        -t|--traefik-root)  troot=${2%/}; shift;; # Remove trailing slash
+        -t|--traefik-root)  troot="${2%/}"; shift;; # Remove trailing slash
         -u|--docker-domain) host="$2"; shift;;
         -a|--admin)         admin="$2"; shift;;
         -d|--dry-run)       dryrun="$2"; shift;;
@@ -118,9 +118,9 @@ else
     if [ "$dryrun" = false ]; then
         if [[ ! $working_dir -ef $troot ]]; then
             message_info "Copying $working_dir/traefik.toml => $troot/traefik.toml"
-            cp $working_dir/traefik.toml $troot/traefik.toml\
+            cp $working_dir/traefik.toml $troot/traefik.toml
         fi
-        sed -i 's/\r//g' $troot/traefik.toml
+        sed -i 's/\r//' $troot/traefik.toml
         if [[ ! -z "${admin}" ]]; then
             message_info "Setting $troot/traefik.toml admin = $admin"
             sed -i "s/ADMIN_EMAIL/${admin}/g" $troot/traefik.toml
@@ -150,8 +150,8 @@ else
             message_info "Copying $working_dir/docker-compose.yml => $troot/docker-compose.yml"
             cp $working_dir/docker-compose.yml $troot/docker-compose.yml
         fi
-        sed -i "s/TRAEFIK_ROOT/${troot}/g" $troot/docker-compose.yml
-        sed -i 's/\r//g' $troot/docker-compose.yml
+        sed -i "s#TRAEFIK_ROOT#${troot}#g" $troot/docker-compose.yml
+        sed -i 's/\r//' $troot/docker-compose.yml
     fi
 fi
 
@@ -178,11 +178,11 @@ fi
 
 message_info "Initializing/rebuilding traefik container"
 
-compose_init_err=$(docker-compose -f "${troot}/docker-compose.yaml" up --detach 2>&1 | tr -d '\r')
+compose_init_err=$(docker-compose -f "${troot}/docker-compose.yaml" up --detach 2>&1 | tr -d '\r';)
 compose_init_out=$?
-if [ $compose_init_out -eq 1 ]; then
-    message_error "$compose_init_err"
+if [[ $compose_init_out -eq 1 ]]; then
+    message_error $compose_init_err
 else
     message_success "Traefik initialized succesfully."
 fi
-exit 0
+exit 0;
