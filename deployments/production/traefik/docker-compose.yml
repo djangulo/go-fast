@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 
 services:
   traefik:
@@ -10,8 +10,8 @@ services:
     networks:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /opt/traefik/traefik.toml:/traefik.toml
-      - /opt/traefik/acme.json:/acme.json
+      - TRAEFIK_ROOT/traefik.toml:/traefik.toml
+      - TRAEFIK_ROOT/acme.json:/acme.json
     container_name: traefik
 
 networks:

@@ -44,15 +44,13 @@ fi
 
 message_warning ${SCRIPT_WARNING}
 
-dryrun=false
-
 while [ "$1" != "" ]; do
     case $1 in
         -p|--project-name)  pname="$2"; shift;;
         -t|--traefik-root)  troot=${2%/}; shift;; # Remove trailing slash
         -u|--docker-domain) host="$2"; shift;;
         -a|--admin)         admin="$2"; shift;;
-        -d|--dry-run)       dryrun=true; shift;;
+        -d|--dry-run)       dryrun="$2"; shift;;
         -n|--networks)   networks="$2"; shift;;
         -h|-\?|--help)      show_help; exit;;
         -*|--*=)            message_error "Unsuported arg $2"; show_help; exit 1;;
@@ -152,6 +150,7 @@ else
             message_info "Copying $working_dir/docker-compose.yml => $troot/docker-compose.yml"
             cp $working_dir/docker-compose.yml $troot/docker-compose.yml
         fi
+        sed -i "s/TRAEFIK_ROOT/${troot}/g" $troot/docker-compose.yml
         sed -i 's/\r//g' $troot/docker-compose.yml
     fi
 fi
@@ -186,3 +185,4 @@ if [ $compose_init_out -eq 1 ]; then
 else
     message_success "Traefik initialized succesfully."
 fi
+exit 0
