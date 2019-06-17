@@ -61,7 +61,7 @@ node {
                 sh 'git pull origin staging'
                 sh 'git merge origin/staging origin/dev'
                 sh "git commit --amend -m \"Jenkins build: ${env.BUILD_TAG}\""
-                sh 'git push origin staging'
+                sh 'git push origin/staging'
             }
         }
         stage('Deploy to staging server') {
@@ -106,7 +106,7 @@ docker-compose -f staging.yml up -d --build --remove-orphans
                     sh 'git pull origin master'
                     sh 'git merge origin/master origin/dev'
                     sh "git commit --amend -m \"Jenkins build: ${env.BUILD_TAG}\""
-                    sh 'git push origin master'
+                    sh 'git push origin/master'
                 }
             }
             stage('Deploy to production') {
