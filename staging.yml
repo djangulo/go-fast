@@ -1,10 +1,7 @@
-version: '3'
-
-volumes:
-  production_traefik: {}
+version: "3"
 
 services:
-  app:
+  staging_app:
     build:
       context: .
       dockerfile: ./deployments/staging/go/Dockerfile
@@ -12,19 +9,19 @@ services:
     restart: always
     command: webserver
     expose:
-      - '9000'
+      - "9000"
     networks:
       - go_fast_staging
       - default
     labels:
-      - 'traefik.docker.network=go_fast_staging'
-      - 'traefik.enable=true'
-      - 'traefik.basic.frontend.rule=Host:go-fast-staging.djangulo.com'
-      - 'traefik.basic.port=9000'
-      - 'traefik.basic.protocol=http'
-      - 'traefik.admin.frontend.rule=Host:gofast-staging-admin.djangulo.com'
-      - 'traefik.admin.protocol=https'
-      - 'traefik.admin.port=9443'
+      - "traefik.docker.network=go_fast_staging"
+      - "traefik.enable=true"
+      - "traefik.basic.frontend.rule=Host:go-fast-staging.djangulo.com"
+      - "traefik.basic.port=9000"
+      - "traefik.basic.protocol=http"
+      - "traefik.admin.frontend.rule=Host:gofast-staging-admin.djangulo.com"
+      - "traefik.admin.protocol=https"
+      - "traefik.admin.port=9443"
 
 networks:
   go_fast_staging:
