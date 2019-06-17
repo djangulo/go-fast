@@ -19,7 +19,7 @@ services:
       - "traefik.basic.frontend.rule=Host:go-fast.djangulo.com"
       - "traefik.basic.port=10000"
       - "traefik.basic.protocol=http"
-      - "traefik.admin.frontend.rule=Host:go-fast-staging-admin.djangulo.com"
+      - "traefik.admin.frontend.rule=Host:go-fast-admin.djangulo.com"
       - "traefik.admin.protocol=https"
       - "traefik.admin.port=9443"
       - "traefik.admin.frontend.auth.basic.users=djangulo:$$apr1$$h.wPwHEW$$yEgYhPyNr4sn8dy4Nbbs70"
