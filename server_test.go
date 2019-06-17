@@ -92,10 +92,15 @@ func TestLeague(t *testing.T) {
 	})
 }
 
-// TestSqlite3PlayerStore integration test
-func TestSqlite3PlayerStore(t *testing.T) {
-	const testDBName = "test_db.db"
-	store, removeStore := poker.NewSqlite3PlayerStore(testDBName)
+// TestPostgreSQLPlayerStore integration test
+func TestPostgreSQLStoreIntegration(t *testing.T) {
+	store, removeStore := poker.NewPostgreSQLPlayerStore(
+		testDatabaseHost,
+		testDatabasePort,
+		testDatabaseUser,
+		testDatabaseName,
+		testDatabasePassword,
+	)
 	defer removeStore()
 
 	server := poker.NewPlayerServer(store)

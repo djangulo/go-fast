@@ -1,0 +1,7 @@
+# PostgreSQL
+# ------------------------------------------------------------------------------
+DB_HOST=postgres
+DB_PORT=5432
+DB_NAME=go_fast_staging
+DB_USER=VpabwL8BlMeWCw7PLaJN
+DB_PASSWORD=QixgDuxRi0tsT9RieAQpMcAiYr4BbsFSFE4QMIfS9837hnCu1v3PAcLuLRrR0Gih

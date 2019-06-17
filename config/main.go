@@ -8,13 +8,32 @@ import (
 var (
 	// RootDir project root
 	RootDir string
-	// DatabaseFilename database string to pass into the store
-	// TODO: adapt this so an sqlite or a postgres Connection String can be passed to the store
-	DatabaseFilename string
+	// DatabaseHost host for PostgreSQL database
+	DatabaseHost string
+	// DatabasePort port for PostgreSQL database
+	DatabasePort string
+	// DatabaseName name for PostgreSQL database
+	DatabaseName string
+	// DatabaseUser user for PostgreSQL database
+	DatabaseUser string
+	// DatabasePassword password for PostgreSQL database
+	DatabasePassword string
 )
+
+func getenv(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if len(value) == 0 {
+		return defaultValue
+	}
+	return value
+}
 
 func init() {
 	pwd, _ := os.Getwd()
 	RootDir = fp.Dir(fp.Dir(pwd))
-	DatabaseFilename = fp.Join(RootDir, "game.db")
+	DatabaseHost = os.Getenv("DB_HOST")
+	DatabasePort = os.Getenv("DB_PORT")
+	DatabaseName = getenv("DB_NAME", fp.Join(RootDir, "game.db"))
+	DatabaseUser = os.Getenv("DB_USER")
+	DatabasePassword = os.Getenv("DB_PASSWORD")
 }

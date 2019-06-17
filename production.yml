@@ -8,6 +8,10 @@ services:
     image: go_fast_production_app
     restart: always
     command: /root/webserver -p 10000
+    depends_on:
+      - postgres
+    env_file:
+      - ./.envs/.production/.postgres
     expose:
       - "10000"
     networks:
@@ -23,6 +27,21 @@ services:
       - "traefik.admin.protocol=https"
       - "traefik.admin.port=9443"
       - "traefik.admin.frontend.auth.basic.users=djangulo:$$apr1$$h.wPwHEW$$yEgYhPyNr4sn8dy4Nbbs70"
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: go_fast_production_postgres
+    volumes:
+      - production_postgres_data:/var/lib/postgresql/data
+      - production_postgres_backups:/backups
+    env_file:
+      - ./.envs/.production/.postgres
+
+volumes:
+  production_postgres_data: {}
+  production_postgres_backups: {}
 
 networks:
   go_fast_production:

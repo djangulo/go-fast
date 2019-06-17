@@ -4,10 +4,14 @@ services:
   staging_app:
     build:
       context: .
-      dockerfile: ./deployments/staging/go/Dockerfile
+      dockerfile: ./deployments/production/go/Dockerfile
     image: go_fast_staging_app
     restart: always
     command: /root/webserver -p 9000
+    depends_on:
+      - staging_postgres
+    env_file:
+      - ./.envs/.staging/.postgres
     expose:
       - "9000"
     networks:
@@ -23,6 +27,21 @@ services:
       - "traefik.admin.protocol=https"
       - "traefik.admin.port=9443"
       - "traefik.admin.frontend.auth.basic.users=djangulo:$$apr1$$h.wPwHEW$$yEgYhPyNr4sn8dy4Nbbs70"
+
+  staging_postgres:
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: go_fast_staging_postgres
+    volumes:
+      - staging_postgres_data:/var/lib/postgresql/data
+      - staging_postgres_backups:/backups
+    env_file:
+      - ./.envs/.staging/.postgres
+
+volumes:
+  staging_postgres_data: {}
+  staging_postgres_backups: {}
 
 networks:
   go_fast_staging:

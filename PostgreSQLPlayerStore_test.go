@@ -7,15 +7,25 @@ import (
 )
 
 const (
-	testDBName = "test_db.db"
-	name1      = "Peter"
-	name2      = "John"
+	testDatabaseHost     = "localhost"
+	testDatabasePort     = "5432"
+	testDatabaseName     = "test_database"
+	testDatabaseUser     = "postgres"
+	testDatabasePassword = "abcd1234"
+	name1                = "Peter"
+	name2                = "John"
 )
 
-func TestCreatePlayer(t *testing.T) {
+func TestPostgreSQLPlayerStore(t *testing.T) {
 
 	t.Run("create", func(t *testing.T) {
-		store, removeStore := poker.NewSqlite3PlayerStore(testDBName)
+		store, removeStore := poker.NewPostgreSQLPlayerStore(
+			testDatabaseHost,
+			testDatabasePort,
+			testDatabaseUser,
+			testDatabaseName,
+			testDatabasePassword,
+		)
 		defer removeStore()
 
 		player := poker.Player{Name: name1, Wins: 0}
@@ -28,7 +38,13 @@ func TestCreatePlayer(t *testing.T) {
 		poker.AssertNoError(t, err)
 	})
 	t.Run("error on creating existing name", func(t *testing.T) {
-		store, removeStore := poker.NewSqlite3PlayerStore(testDBName)
+		store, removeStore := poker.NewPostgreSQLPlayerStore(
+			testDatabaseHost,
+			testDatabasePort,
+			testDatabaseUser,
+			testDatabaseName,
+			testDatabasePassword,
+		)
 		defer removeStore()
 
 		player1 := poker.Player{Name: name1, Wins: 0}
@@ -38,7 +54,13 @@ func TestCreatePlayer(t *testing.T) {
 		poker.AssertError(t, err, poker.ErrRecordAlreadyExists)
 	})
 	t.Run("store wins for existing player", func(t *testing.T) {
-		store, removeStore := poker.NewSqlite3PlayerStore(testDBName)
+		store, removeStore := poker.NewPostgreSQLPlayerStore(
+			testDatabaseHost,
+			testDatabasePort,
+			testDatabaseUser,
+			testDatabaseName,
+			testDatabasePassword,
+		)
 		defer removeStore()
 
 		player := poker.Player{Name: name1, Wins: 0}
@@ -49,7 +71,13 @@ func TestCreatePlayer(t *testing.T) {
 		poker.AssertScoreEquals(t, got, want)
 	})
 	t.Run("store wins for new player", func(t *testing.T) {
-		store, removeStore := poker.NewSqlite3PlayerStore(testDBName)
+		store, removeStore := poker.NewPostgreSQLPlayerStore(
+			testDatabaseHost,
+			testDatabasePort,
+			testDatabaseUser,
+			testDatabaseName,
+			testDatabasePassword,
+		)
 		defer removeStore()
 
 		store.RecordWin(name1)
@@ -58,7 +86,13 @@ func TestCreatePlayer(t *testing.T) {
 		poker.AssertScoreEquals(t, got, want)
 	})
 	t.Run("league should return ordered by wins, then name", func(t *testing.T) {
-		store, removeStore := poker.NewSqlite3PlayerStore(testDBName)
+		store, removeStore := poker.NewPostgreSQLPlayerStore(
+			testDatabaseHost,
+			testDatabasePort,
+			testDatabaseUser,
+			testDatabaseName,
+			testDatabasePassword,
+		)
 		defer removeStore()
 
 		store.CreatePlayer(poker.Player{Name: "A", Wins: 1})
