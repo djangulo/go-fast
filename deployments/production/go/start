@@ -5,4 +5,4 @@ set -o pipefail
 set -o nounset
 
 
-/webserver -p 10000
+webserver -p 10000

@@ -94,7 +94,7 @@ docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "/opt/traefik/traef
 
 # initialize staging services
 eval $(docker-machine env $DIGITALOCEAN_DROPLET_NAME)
-docker-compose -f staging.yml up -d --build
+docker-compose -f staging.yml up -d --build --remove-orphans
 '''
         }
         stage('Run E2E against staging (not available yet') {
@@ -125,7 +125,7 @@ export COMPOSE_TLS_VERSION=TLSv1_2
 /var/lib/jenkins/provision_digitalocean.py
 
 eval $(docker-machine env $DIGITALOCEAN_DROPLET_NAME)
-docker-compose -f production.yml up -d --build
+docker-compose -f production.yml up -d --build  --remove-orphans
 '''
             }
         }
