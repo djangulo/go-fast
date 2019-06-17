@@ -5,6 +5,8 @@ WORKDIR $GOPATH/src/github.com/djangulo/go-fast/
 COPY . .
 RUN go get -d -v ./...
 RUN go install -v ./...
+RUN CGO_ENABLED=0 GOOS=linux go build -p 1 -a -installsuffix cgo -o $GOPATH/bin/entrypoint ./deployments/production/entrypoint.go
+ENTRYPOINT [ "entrypoint" ]
 
 CMD ["webserver"]
 

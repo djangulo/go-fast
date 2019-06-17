@@ -31,7 +31,7 @@ services:
   staging_postgres:
     build:
       context: .
-      dockerfile: ./compose/production/postgres/Dockerfile
+      dockerfile: ./deployments/production/postgres/Dockerfile
     image: go_fast_staging_postgres
     volumes:
       - staging_postgres_data:/var/lib/postgresql/data

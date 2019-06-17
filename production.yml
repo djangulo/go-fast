@@ -31,7 +31,7 @@ services:
   postgres:
     build:
       context: .
-      dockerfile: ./compose/production/postgres/Dockerfile
+      dockerfile: ./deployments/production/postgres/Dockerfile
     image: go_fast_production_postgres
     volumes:
       - production_postgres_data:/var/lib/postgresql/data

@@ -6,6 +6,8 @@ services:
       context: .
       dockerfile: ./deployments/local/go/Dockerfile
     image: go_fast_local
+    depends_on:
+      - postgres
     volumes:
       - .:/app
     env_file:
@@ -16,7 +18,7 @@ services:
   postgres:
     build:
       context: .
-      dockerfile: ./compose/production/postgres/Dockerfile
+      dockerfile: ./deployments/production/postgres/Dockerfile
     image: go_fast_local_postgres
     volumes:
       - local_postgres_data:/var/lib/postgresql/data
