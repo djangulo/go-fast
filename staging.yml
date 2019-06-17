@@ -7,7 +7,7 @@ services:
       dockerfile: ./deployments/staging/go/Dockerfile
     image: go_fast_staging_app
     restart: always
-    command: /start
+    command: /root/webserver -p 9000
     expose:
       - "9000"
     networks:

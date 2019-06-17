@@ -7,7 +7,7 @@ services:
       dockerfile: ./deployments/production/go/Dockerfile
     image: go_fast_production_app
     restart: always
-    command: /start
+    command: /root/webserver -p 10000
     expose:
       - "10000"
     networks:

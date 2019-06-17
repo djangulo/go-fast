@@ -12,10 +12,6 @@ RUN CGO_ENABLED=1 GOOS=linux go build -p 1 -a -installsuffix cgo -o $GOPATH/bin/
 FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates
-WORKDIR /
-COPY --from=builder /go/bin/webserver /usr/local/bin/webserver
-RUN chmod +x /usr/local/bin/webserver
-COPY --from=builder /go/src/github.com/djangulo/go-fast/deployments/production/go/start .
-RUN sed -i 's/\r//' /start
-RUN chmod +x /start
-
+WORKDIR /root/
+COPY --from=builder /go/bin/webserver .
+RUN chmod +x ./webserver
