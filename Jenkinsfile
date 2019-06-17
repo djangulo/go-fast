@@ -59,7 +59,7 @@ node {
         stage('Commit to staging branch') {
             withCredentials([sshUserPrivateKey(credentialsId: 'f6872e14-d6aa-467d-b9d5-cb87b1aa9efa', keyFileVariable: 'SSHKEYFILE')]) {
                 sh 'git pull origin staging'
-                sh 'git merge staging dev'
+                sh 'git merge origin/staging origin/dev'
                 sh "git commit --amend -m \"Jenkins build: ${env.BUILD_TAG}\""
                 sh 'git push origin staging'
             }
@@ -104,7 +104,7 @@ docker-compose -f staging.yml up -d --build --remove-orphans
             stage('Commit to master branch') {
                 withCredentials([sshUserPrivateKey(credentialsId: 'f6872e14-d6aa-467d-b9d5-cb87b1aa9efa', keyFileVariable: 'SSHKEYFILE')]) {
                     sh 'git pull origin master'
-                    sh 'git merge master dev'
+                    sh 'git merge origin/master origin/dev'
                     sh "git commit --amend -m \"Jenkins build: ${env.BUILD_TAG}\""
                     sh 'git push origin master'
                 }
