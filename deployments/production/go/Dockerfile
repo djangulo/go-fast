@@ -5,7 +5,7 @@ WORKDIR $GOPATH/src/github.com/djangulo/go-fast/
 COPY . .
 RUN go get -d -v ./...
 RUN CGO_ENABLED=0 GOOS=linux go build -p 1 -a -installsuffix cgo -o $GOPATH/bin/webserver ./cmd/webserver/main.go
-RUN CGO_ENABLED=0 GOOS=linux go build -p 1 -a -installsuffix cgo -o $GOPATH/bin/entrypoint ./deployments/production/entrypoint/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -p 1 -a -installsuffix cgo -o $GOPATH/bin/entrypoint ./deployments/production/go/entrypoint/main.go
 
 
 FROM alpine:latest
