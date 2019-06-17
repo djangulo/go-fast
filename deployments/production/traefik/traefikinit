@@ -15,7 +15,7 @@ Usage: traefikinit [OPTIONS]
      
 Initial setup for traefik with docker"
 Creates traefik scaffolding under <traefik-root>/<project-name>
-then starts a service as described in ./traefik-compose.yml"
+then starts a service as described in ./docker-compose.yml"
     
     -h, --help              show this help message and exit
     -t, --traefik-root      root dir for traefik, default /opt/traefik
@@ -38,19 +38,21 @@ fi
 
 if ! compose_loc="$(type -p "docker-compose")" || [[ -z $compose_loc ]]; then
     message_error "${DOCKER_REQUIRED//docker/docker-compose}, installing docker-compose"
-    sudo curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
+    curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    chmod +x /usr/local/bin/docker-compose
 fi
 
 message_warning ${SCRIPT_WARNING}
 
+dryrun=false
+
 while [ "$1" != "" ]; do
     case $1 in
         -p|--project-name)  pname="$2"; shift;;
-        -t|--traefik-root)  troot="$2"; shift;;
+        -t|--traefik-root)  troot=${2%/}; shift;; # Remove trailing slash
         -u|--docker-domain) host="$2"; shift;;
         -a|--admin)         admin="$2"; shift;;
-        -d|--dry-run)       dryrun="$2"; shift;;
+        -d|--dry-run)       dryrun=true; shift;;
         -n|--networks)   networks="$2"; shift;;
         -h|-\?|--help)      show_help; exit;;
         -*|--*=)            message_error "Unsuported arg $2"; show_help; exit 1;;
@@ -91,7 +93,6 @@ else
     split_net=$(echo $networks | tr "," "\n")
 fi
 
-traefik_path="${troot}"/"${snake_pname}"
 if [ ! -d $troot ]; then
     message_info "$troot does not exist, creating dir $troot"
     if [ "$dryrun" = false ]; then
@@ -117,15 +118,17 @@ if [ -f "$troot/traefik.toml" ]; then
     message_info "$troot/traefik.toml found, leaving uchanged"
 else
     if [ "$dryrun" = false ]; then
-        message_info "Copying $working_dir/traefik.toml => $troot/traefik.toml"
-        cp $working_dir/traefik.toml $troot/traefik.toml
+        if [[ ! $working_dir -ef $troot ]]; then
+            message_info "Copying $working_dir/traefik.toml => $troot/traefik.toml"
+            cp $working_dir/traefik.toml $troot/traefik.toml\
+        fi
         sed -i 's/\r//g' $troot/traefik.toml
         if [[ ! -z "${admin}" ]]; then
             message_info "Setting $troot/traefik.toml admin = $admin"
             sed -i "s/ADMIN_EMAIL/${admin}/g" $troot/traefik.toml
         fi
         if [[ ! -z "${host}" ]]; then
-        message_info "Setting $troot/traefik.toml docker domain = $host"
+            message_info "Setting $troot/traefik.toml docker domain = $host"
             sed -i "s#\"DOCKER_DOMAIN\"#\"${host}\"#g" $troot/traefik.toml
         fi
     fi
@@ -135,7 +138,7 @@ if [ -f "$troot/acme.json" ]; then
     message_info "$troot/acme.json found, leaving uchanged"
 else
     if [ "$dryrun" = false ]; then
-        message_info "Creating blank $troot/acme.json"
+        message_info "Creating empty $troot/acme.json"
         touch $troot/acme.json
         chmod 600 $troot/acme.json
     fi
@@ -145,8 +148,10 @@ if [ -f "$troot/docker-compose.yml" ]; then
     message_info "$troot/docker-compose.yml found, leaving uchanged"
 else
     if [ "$dryrun" = false ]; then
-        message_info "Copying $working_dir/docker-compose.yml => $troot/docker-compose.yml"
-        cp $working_dir/docker-compose.yml $troot/docker-compose.yml
+        if [[ ! $working_dir -ef $troot ]]; then
+            message_info "Copying $working_dir/docker-compose.yml => $troot/docker-compose.yml"
+            cp $working_dir/docker-compose.yml $troot/docker-compose.yml
+        fi
         sed -i 's/\r//g' $troot/docker-compose.yml
     fi
 fi
@@ -157,7 +162,6 @@ if ! tree_loc="$(type -p "tree")" || [[ -z $tree_loc ]]; then
 else
     tree ${troot}
 fi
-
 
 
 if [[ -z "${networks}" ]]; then
@@ -173,20 +177,12 @@ else
     done
 fi
 
-# message_info "Creating networks as  \e[33m${snake_pname}_web\e[0m"
-# echo -e "\tdocker network create ${snake_pname}_web"
-# network_create_output=$(docker network create "${snake_pname}_web" 2>&1 | tr -d '\r')
-# if [ ${network_create_output:0:5} == "Error" ] || [[ -z "${network_create_output}" ]]; then
-#     message_error "$network_create_output"
-#     exit 1
-# else
-#     message_success "Network \e[33m${snake_pname}_web\e[0m created succesfully"
-# fi
+message_info "Initializing/rebuilding traefik container"
 
-# message_info "Running docker compose"
-# echo -e "\tdocker-compose -f "$traefik_path/docker-compose.yml" up --detach"
-# docker-compose -f "$traefik_path/docker-compose.yml" up --detach
-
-
-
-
+compose_init_err=$(docker-compose -f "${troot}/docker-compose.yaml" up --detach 2>&1 | tr -d '\r')
+compose_init_out=$?
+if [ $compose_init_out -eq 1 ]; then
+    message_error "$compose_init_err"
+else
+    message_success "Traefik initialized succesfully."
+fi

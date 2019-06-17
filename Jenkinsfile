@@ -82,18 +82,17 @@ echo $docker_machine_output
 
 # Create traefik root & home for build files
 docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "mkdir -p /opt/traefik"
-docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "mkdir -p /opt/traefik-files/_sourced"
-docker-machine scp ./deployments/production/traefik/_sourced/messages.sh $DIGITALOCEAN_DROPLET_NAME:/opt/traefik-files/_sourced/
-docker-machine scp ./deployments/production/traefik/_sourced/constants.sh $DIGITALOCEAN_DROPLET_NAME:/opt/traefik-files/_sourced/
-docker-machine scp ./deployments/production/traefik/docker-compose.yml $DIGITALOCEAN_DROPLET_NAME:/opt/traefik-files/
-docker-machine scp ./deployments/production/traefik/insert_network $DIGITALOCEAN_DROPLET_NAME:/opt/traefik-files/
-docker-machine scp ./deployments/production/traefik/traefik.toml $DIGITALOCEAN_DROPLET_NAME:/opt/traefik-files/
-docker-machine scp ./deployments/production/traefik/traefikinit $DIGITALOCEAN_DROPLET_NAME:/opt/traefik-files/
-docker-machine --native-ssh ssh $DIGITALOCEAN_DROPLET_NAME "chmod +x /opt/traefik-files/traefikinit /opt/traefik-files/insert_network"
+
+# Copy traefik files into machine
+docker-machine scp ./deployments/production/traefik $DIGITALOCEAN_DROPLET_NAME:/opt/
+docker-machine --native-ssh ssh $DIGITALOCEAN_DROPLET_NAME "chmod +x /opt/traefik/traefikinit /opt/traefik/insert_network"
+
+
 # initialize traefik
 # init both staging and production networks
 docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "/opt/traefik-files/traefikinit -t /opt/traefik -p go-fast -a djal@tuta.io -u docker.djangulo.com -n go_fast_staging,go_fast_production"
-docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "docker-compose -f /opt/traefik/docker-compose.yml up -d"
+
+# initialize staging services
 eval $(docker-machine env $DIGITALOCEAN_DROPLET_NAME)
 docker-compose -f staging.yml up -d --build
 '''
