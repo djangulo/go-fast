@@ -14,7 +14,7 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /
 COPY --from=builder /go/bin/webserver /usr/local/bin/webserver
-RUN chmod +x /webserver
+RUN chmod +x /usr/local/bin/webserver
 COPY --from=builder /go/src/github.com/djangulo/go-fast/deployments/production/go/start .
 RUN sed -i 's/\r//' /start
 RUN chmod +x /start
