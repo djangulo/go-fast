@@ -90,7 +90,7 @@ docker-machine --native-ssh ssh $DIGITALOCEAN_DROPLET_NAME "chmod +x /opt/traefi
 
 # initialize traefik
 # init both staging and production networks
-docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "/opt/traefik-files/traefikinit -t /opt/traefik -p go-fast -a djal@tuta.io -u docker.djangulo.com -n go_fast_staging,go_fast_production"
+docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "/opt/traefik/traefikinit -t /opt/traefik -p go-fast -a djal@tuta.io -u docker.djangulo.com -n go_fast_staging,go_fast_production"
 
 # initialize staging services
 eval $(docker-machine env $DIGITALOCEAN_DROPLET_NAME)
