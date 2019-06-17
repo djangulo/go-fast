@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   app:
@@ -6,5 +6,24 @@ services:
       context: .
       dockerfile: ./deployments/local/go/Dockerfile
     image: go_fast_local
+    volumes:
+      - .:/app
+    env_file:
+      - ./.envs/.local/.postgres
     ports:
-      - '127.0.0.1:9000:9000'
+      - "127.0.0.1:9000:9000"
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: go_fast_local_postgres
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data
+      - local_postgres_backups:/backups
+    env_file:
+      - ./.envs/.local/.postgres
+
+volumes:
+  local_postgres_data: {}
+  local_postgres_backups: {}
