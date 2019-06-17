@@ -15,7 +15,7 @@ node {
                 $class: 'GitSCM',
                 branches: [
                     [
-                        name: "refs/heads/${params.branch}"
+                        name: "remote/origin/${params.branch}"
                     ]
                 ],
             doGenerateSubmoduleConfigurations: false,
