@@ -6,14 +6,14 @@ COPY . .
 RUN go get -d -v ./...
 # CGO_ENABLED=1 due to the sqlite implementation
 # remove after migrating to postgres
-RUN CGO_ENABLED=1 GOOS=linux go build -p 1 -a -installsuffix cgo -o /webserver ./cmd/webserver/main.go
+RUN CGO_ENABLED=1 GOOS=linux go build -p 1 -a -installsuffix cgo -o $GOPATH/bin/webserver ./cmd/webserver/main.go
 
 
 FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates
 WORKDIR /
-COPY --from=builder /webserver .
+COPY --from=builder /go/bin/webserver .
 RUN chmod +x /webserver
 COPY --from=builder /go/src/github.com/djangulo/go-fast/deployments/staging/go/start .
 RUN sed -i 's/\r//' /start
