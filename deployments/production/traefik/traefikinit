@@ -178,7 +178,7 @@ fi
 
 message_info "Initializing/rebuilding traefik container"
 
-compose_init_err=$(docker-compose -f "${troot}/docker-compose.yaml" up --detach 2>&1 | tr -d '\r';)
+compose_init_err=$(docker-compose -f "${troot}/docker-compose.yml" up --detach 2>&1 | tr -d '\r';)
 compose_init_out=$?
 if [[ $compose_init_out -eq 1 ]]; then
     message_error $compose_init_err
