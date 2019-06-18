@@ -1,7 +1,7 @@
 # PostgreSQL
 # ------------------------------------------------------------------------------
-DB_HOST=postgres
-DB_PORT=5432
-DB_NAME=go_fast_prod
-DB_USER=AMu0WogRDWdUu1erxL1g
-DB_PASSWORD=6P5NEGnNNXlyYN0YBlB9aNeZyqMWV6u3E7meGGcrwfcpWghoWSDHwQJjDRV1A4G5
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=go_fast_prod
+POSTGRES_USER=AMu0WogRDWdUu1erxL1g
+POSTGRES_PASSWORD=6P5NEGnNNXlyYN0YBlB9aNeZyqMWV6u3E7meGGcrwfcpWghoWSDHwQJjDRV1A4G5

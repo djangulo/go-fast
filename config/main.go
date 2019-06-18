@@ -31,9 +31,9 @@ func getenv(key, defaultValue string) string {
 func init() {
 	pwd, _ := os.Getwd()
 	RootDir = fp.Dir(fp.Dir(pwd))
-	DatabaseHost = os.Getenv("DB_HOST")
-	DatabasePort = os.Getenv("DB_PORT")
-	DatabaseName = getenv("DB_NAME", fp.Join(RootDir, "game.db"))
-	DatabaseUser = os.Getenv("DB_USER")
-	DatabasePassword = os.Getenv("DB_PASSWORD")
+	DatabaseHost = os.Getenv("POSTGRES_HOST")
+	DatabasePort = os.Getenv("POSTGRES_PORT")
+	DatabaseName = getenv("POSTGRES_DB", fp.Join(RootDir, "game.db"))
+	DatabaseUser = os.Getenv("POSTGRES_USER")
+	DatabasePassword = os.Getenv("POSTGRES_PASSWORD")
 }
