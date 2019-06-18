@@ -11,8 +11,14 @@ func main() {
 	fmt.Println("Lets play poker")
 	fmt.Println("Type {Name} wins to recond a win")
 
-	store, _ := poker.NewSqlite3PlayerStore(config.DatabaseFilename)
-	defer store.DB.Close()
+	store, removeStore := poker.NewPostgreSQLPlayerStore(
+		config.DatabaseHost,
+		config.DatabasePort,
+		config.DatabaseUser,
+		config.DatabaseName,
+		config.DatabasePassword,
+	)
+	defer removeStore()
 
 	game := poker.NewCLI(store, os.Stdin)
 	game.PlayPoker()
