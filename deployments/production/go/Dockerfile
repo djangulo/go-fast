@@ -8,9 +8,18 @@ RUN CGO_ENABLED=0 GOOS=linux go build -p 1 -a -installsuffix cgo -o $GOPATH/bin/
 
 
 FROM alpine:latest
-RUN apk --no-cache add ca-certificates
-WORKDIR /root/
-COPY --from=builder /go/bin/webserver .
+
+RUN addgroup -S golang \
+    && adduser -S -G golang golang
+
+RUN apk update \
+    && apk --no-cache add postgresql-dev ca-certificates
+COPY --from=builder /go/bin/webserver /webserver
 RUN chmod +x ./webserver
-COPY --from=builder /go/src/github.com/djangulo/go-fast/deployments/production/go/wait-for .
-RUN chmod +x ./wait-for
+RUN chown golang /webserver
+
+COPY --from=builder /go/src/github.com/djangulo/go-fast/deployments/production/go/entrypoint /
+RUN sed 's/\r//g' /entrypoint
+RUN chmod +x /entrypoint
+RUN chown golang /entrypoint
+ENTRYPOINT [ "/entrypoint" ]

@@ -7,5 +7,9 @@ COPY . .
 RUN go get -d -v ./...
 RUN go install -v ./...
 
-RUN mv ./deployments/production/go/wait-for /wait-for
-RUN chmod +x /wait-for
+RUN apk update \
+    && apk --no-cache add postgresql-dev ca-certificates
+
+RUN mv ./deployments/production/go/entrypoint /entrypoint
+RUN sed 's/\r//g' /entrypoint
+RUN chmod +x /entrypoint

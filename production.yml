@@ -6,9 +6,8 @@ services:
       context: .
       dockerfile: ./deployments/production/go/Dockerfile
     image: go_fast_production_app
-    restart: on-failure
-    command:
-      ["/root/wait-for", "postgres:5432", "/root/webserver", "-p", "10000"]
+    restart: always
+    command: /webserver -p 9000
     depends_on:
       - postgres
     env_file:
