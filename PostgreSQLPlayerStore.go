@@ -12,12 +12,12 @@ var ErrRecordAlreadyExists = errors.New("already exists")
 
 func NewPostgreSQLPlayerStore(host, port, user, dbname, pass string) (*PostgreSQLPlayerStore, func()) {
 	connStr := fmt.Sprintf(
-		"host=%s port=%s user=%s dbname=%s password=%s",
+		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		user,
+		pass,
 		host,
 		port,
-		user,
 		dbname,
-		pass,
 	)
 	db, err := gorm.Open("postgres", connStr)
 	if err != nil {

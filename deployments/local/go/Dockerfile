@@ -3,10 +3,11 @@ FROM golang:1.12.5
 LABEL maintainer="Denis Angulo <djal@tuta.io>"
 WORKDIR $GOPATH/src/github.com/djangulo/go-fast/
 COPY . .
+
 RUN go get -d -v ./...
 RUN go install -v ./...
-RUN CGO_ENABLED=0 GOOS=linux go build -p 1 -a -installsuffix cgo -o $GOPATH/bin/entrypoint ./deployments/production/entrypoint/main.go
-ENTRYPOINT [ "entrypoint" ]
+# RUN CGO_ENABLED=0 GOOS=linux go build -p 1 -a -installsuffix cgo -o ./deployments/production/go/ep ./deployments/production/go/entrypoint/main.go
+# RUN chmod +x ./deployments/production/go/ep
+
 
 CMD ["webserver"]
-
