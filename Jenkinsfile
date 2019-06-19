@@ -8,6 +8,9 @@ properties([
     ]
 )])
 node {
+    stage('Pre-cleanup') {
+        cleanWs()
+    }
     stage('Checkout') {
         echo "Fetching branch"
         checkout(
@@ -32,13 +35,21 @@ node {
     }
     stage('Build local for tests') {
         echo 'Building inside docker container....'
-        sh 'docker-compose -f local.yml build --no-cache'
-        sh 'docker-compose -f local.yml up --detach --remove-orphans'
+        sh label: 'test-build', script: '''
+#!/bin/sh
+export COMPOSE_TLS_VERSION=TLSv1_2
+docker-compose -f local.yml build --no-cache
+docker-compose -f local.yml up --detach --remove-orphans
+        '''
     }
     stage('Test') {
         echo 'Testing....'
-        sh 'docker-compose -f local.yml run --rm app go test -v'
-        sh 'docker-compose -f local.yml down --volumes --remove-orphans'
+        sh label: 'tests', script: '''
+#!/bin/sh
+export COMPOSE_TLS_VERSION=TLSv1_2
+docker-compose -f local.yml run --rm app go test -v
+docker-compose -f local.yml down --volumes --remove-orphans
+        '''
     }
     if (currentBuild.currentResult == 'SUCCESS') {
         stage('Commit to staging branch') {
@@ -117,5 +128,8 @@ docker-compose -f production.yml up --detach --remove-orphans
 '''
             }
         }
+    }
+    stage('Post-cleanup'){
+        cleanWs()
     }
 }
