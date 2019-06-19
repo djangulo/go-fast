@@ -1,4 +1,7 @@
 node {
+    stage('Pre-cleanup') {
+        cleanWs()
+    }
     stage('Checkout') {
         echo "Fetching branch"
         checkout(
@@ -23,28 +26,20 @@ node {
     }
     stage('Build local for tests') {
         echo 'Building inside docker container....'
-        step([$class: 'DockerComposeBuilder', dockerComposeFile: 'local.yml', option: [$class: 'StartAllServices'], useCustomDockerComposeFile: true])
+        sh label: 'test-build', script: '''
+#!/bin/sh
+docker-compose -f local.yml down --volumes --remove-orphans
+docker-compose -f local.yml build --no-cache
+docker-compose -f local.yml up --detach --remove-orphans
+        '''
     }
     stage('Test') {
         echo 'Testing....'
-        step([
-            $class: 'DockerComposeBuilder',
-            dockerComposeFile: 'local.yml',
-            option: [
-                $class: 'ExecuteCommandInsideContainer',
-                command: 'go test -v',
-                index: 1,
-                privilegedMode: false,
-                service: 'app',
-                workDir: ''],
-                useCustomDockerComposeFile: true
-            ])
-            step([
-                $class: 'DockerComposeBuilder',
-                dockerComposeFile: 'local.yml',
-                option: [$class: 'StopAllServices'],
-                useCustomDockerComposeFile: true
-            ])
+        sh label: 'tests', script: '''
+#!/bin/sh
+docker-compose -f local.yml run --rm app go test -v
+docker-compose -f local.yml down --volumes --remove-orphans
+        '''
     }
     if (currentBuild.currentResult == 'SUCCESS') {
         stage('Commit to staging branch') {
@@ -79,14 +74,14 @@ docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "mkdir -p /opt/trae
 docker-machine scp -r -d ./deployments/production/traefik $DIGITALOCEAN_DROPLET_NAME:/opt/
 docker-machine --native-ssh ssh $DIGITALOCEAN_DROPLET_NAME "chmod +x /opt/traefik/traefikinit /opt/traefik/insert_network"
 
-
 # initialize traefik
 # init both staging and production networks
 docker-machine  --native-ssh  ssh $DIGITALOCEAN_DROPLET_NAME "/opt/traefik/traefikinit -t /opt/traefik -p go-fast -a djal@tuta.io -u docker.djangulo.com -n go_fast_staging,go_fast_production"
 
 # initialize staging services
 eval $(docker-machine env $DIGITALOCEAN_DROPLET_NAME)
-docker-compose -f staging.yml up -d --build --remove-orphans
+docker-compose -f staging.yml build --no-cache
+docker-compose -f staging.yml up --detach --remove-orphans
 '''
         }
         stage('Run E2E against staging (not available yet') {
@@ -118,9 +113,13 @@ export COMPOSE_TLS_VERSION=TLSv1_2
 /var/lib/jenkins/provision_digitalocean.py
 
 eval $(docker-machine env $DIGITALOCEAN_DROPLET_NAME)
-docker-compose -f production.yml up -d --build  --remove-orphans
+docker-compose -f production.yml build --no-cache
+docker-compose -f production.yml up --detach --remove-orphans
 '''
             }
         }
+    }
+    stage('Post-cleanup'){
+        cleanWs()
     }
 }
