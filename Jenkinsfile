@@ -1,12 +1,3 @@
-properties([
-    parameters([
-        string(
-            defaultValue: 'dev',
-            description: 'Branch to build on',
-            name: 'branch'
-        )
-    ]
-)])
 node {
     stage('Pre-cleanup') {
         cleanWs()
@@ -18,7 +9,7 @@ node {
                 $class: 'GitSCM',
                 branches: [
                     [
-                        name: "refs/heads/${params.branch}"
+                        name: "refs/heads/dev"
                     ]
                 ],
             doGenerateSubmoduleConfigurations: false,
