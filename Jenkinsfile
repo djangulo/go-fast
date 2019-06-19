@@ -46,7 +46,7 @@ docker-compose -f local.yml down --volumes --remove-orphans
             withCredentials([sshUserPrivateKey(credentialsId: 'f6872e14-d6aa-467d-b9d5-cb87b1aa9efa', keyFileVariable: 'SSHKEYFILE')]) {
                 sh 'git checkout staging'
                 sh 'git pull origin staging'
-                sh 'git merge dev'
+                sh 'git merge origin/dev'
                 sh "git commit --amend -m \"Jenkins build: ${env.BUILD_TAG}\""
                 sh 'git push origin staging'
             }
@@ -92,7 +92,7 @@ docker-compose -f staging.yml up --detach --remove-orphans
                 withCredentials([sshUserPrivateKey(credentialsId: 'f6872e14-d6aa-467d-b9d5-cb87b1aa9efa', keyFileVariable: 'SSHKEYFILE')]) {
                     sh 'git checkout master'
                     sh 'git pull origin master'
-                    sh 'git merge dev'
+                    sh 'git merge origin/dev'
                     sh "git commit --amend -m \"Jenkins build: ${env.BUILD_TAG}\""
                     sh 'git push origin master'
                 }
