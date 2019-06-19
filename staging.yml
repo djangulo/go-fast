@@ -1,4 +1,4 @@
-version: "3"
+version: '3.7'
 
 services:
   staging_app:
@@ -13,25 +13,32 @@ services:
     env_file:
       - ./.envs/.staging/.postgres
     expose:
-      - "9000"
+      - '9000'
     networks:
       - go_fast_staging
       - default
     labels:
-      - "traefik.docker.network=go_fast_staging"
-      - "traefik.enable=true"
-      - "traefik.basic.frontend.rule=Host:go-fast-staging.djangulo.com"
-      - "traefik.basic.port=9000"
-      - "traefik.basic.protocol=http"
-      - "traefik.admin.frontend.rule=Host:go-fast-staging-admin.djangulo.com"
-      - "traefik.admin.protocol=https"
-      - "traefik.admin.port=9443"
-      - "traefik.admin.frontend.auth.basic.users=djangulo:$$apr1$$h.wPwHEW$$yEgYhPyNr4sn8dy4Nbbs70"
+      - 'traefik.docker.network=go_fast_staging'
+      - 'traefik.enable=true'
+      - 'traefik.basic.frontend.rule=Host:go-fast-staging.djangulo.com'
+      - 'traefik.basic.port=9000'
+      - 'traefik.basic.protocol=http'
+      - 'traefik.admin.frontend.rule=Host:go-fast-staging-admin.djangulo.com'
+      - 'traefik.admin.protocol=https'
+      - 'traefik.admin.port=9443'
+      - 'traefik.admin.frontend.auth.basic.users=djangulo:$$apr1$$h.wPwHEW$$yEgYhPyNr4sn8dy4Nbbs70'
 
+  #  Needs a different name from prod, as they'll live in the same machine
   staging_postgres:
     build:
       context: .
       dockerfile: ./deployments/production/postgres/Dockerfile
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready']
+      interval: 1m30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     image: go_fast_staging_postgres
     volumes:
       - staging_postgres_data:/var/lib/postgresql/data
