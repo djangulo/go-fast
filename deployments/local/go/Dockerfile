@@ -8,9 +8,6 @@ RUN go get -d -v ./...
 RUN go install -v ./...
 RUN git clone https://github.com/eficode/wait-for.git
 
-RUN apk update \
-    && apk --no-cache add ca-certificates
-
 COPY ./wait-for/wait-for ./wait-for
 RUN sed -i 's/\r//g' ./wait-for
 RUN chmod +x ./wait-for
