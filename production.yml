@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 services:
   app:
@@ -6,38 +6,39 @@ services:
       context: .
       dockerfile: ./deployments/production/go/Dockerfile
     image: go_fast_production_app
-    restart: always
-    command: /root/webserver -p 10000
+    restart: on-failure
+    command: ["/root/wait-for-postgres.sh", "/root/webserver", "-p", "10000"]
     depends_on:
       - postgres
     env_file:
       - ./.envs/.production/.postgres
     expose:
-      - '10000'
+      - "10000"
     networks:
       - go_fast_production
       - default
     labels:
-      - 'traefik.docker.network=go_fast_production'
-      - 'traefik.enable=true'
-      - 'traefik.basic.frontend.rule=Host:go-fast.djangulo.com'
-      - 'traefik.basic.port=10000'
-      - 'traefik.basic.protocol=http'
-      - 'traefik.admin.frontend.rule=Host:go-fast-admin.djangulo.com'
-      - 'traefik.admin.protocol=https'
-      - 'traefik.admin.port=10443'
-      - 'traefik.admin.frontend.auth.basic.users=djangulo:$$apr1$$h.wPwHEW$$yEgYhPyNr4sn8dy4Nbbs70'
+      - "traefik.docker.network=go_fast_production"
+      - "traefik.enable=true"
+      - "traefik.basic.frontend.rule=Host:go-fast.djangulo.com"
+      - "traefik.basic.port=10000"
+      - "traefik.basic.protocol=http"
+      - "traefik.admin.frontend.rule=Host:go-fast-admin.djangulo.com"
+      - "traefik.admin.protocol=https"
+      - "traefik.admin.port=10443"
+      - "traefik.admin.frontend.auth.basic.users=djangulo:$$apr1$$h.wPwHEW$$yEgYhPyNr4sn8dy4Nbbs70"
 
   postgres:
     build:
       context: .
       dockerfile: ./deployments/production/postgres/Dockerfile
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready']
+      test: ["CMD-SHELL", "pg_isready"]
       interval: 1m30s
       timeout: 10s
       retries: 5
-      start_period: 60s
+      start_period: 30s
+    restart: always
     image: go_fast_production_postgres
     volumes:
       - production_postgres_data:/var/lib/postgresql/data
