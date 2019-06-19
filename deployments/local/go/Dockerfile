@@ -6,8 +6,8 @@ COPY . .
 
 RUN go get -d -v ./...
 RUN go install -v ./...
-RUN git clone https://github.com/eficode/wait-for.git
+RUN git clone https://github.com/eficode/wait-for.git ./wait
 
-COPY ./wait-for/wait-for ./wait-for
+COPY ./wait/wait-for ./wait-for
 RUN sed -i 's/\r//g' ./wait-for
 RUN chmod +x ./wait-for
