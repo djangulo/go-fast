@@ -37,7 +37,6 @@ node {
         echo 'Building inside docker container....'
         sh label: 'test-build', script: '''
 #!/bin/sh
-export COMPOSE_TLS_VERSION=TLSv1_2
 docker-compose -f local.yml build --no-cache
 docker-compose -f local.yml up --detach --remove-orphans
         '''
@@ -46,7 +45,6 @@ docker-compose -f local.yml up --detach --remove-orphans
         echo 'Testing....'
         sh label: 'tests', script: '''
 #!/bin/sh
-export COMPOSE_TLS_VERSION=TLSv1_2
 docker-compose -f local.yml run --rm app go test -v
 docker-compose -f local.yml down --volumes --remove-orphans
         '''
