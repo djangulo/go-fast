@@ -13,7 +13,7 @@ RUN addgroup -S golang \
     && adduser -S -G golang golang
 
 RUN apk update \
-    && apk --no-cache add postgresql-dev ca-certificates
+    && apk --no-cache add postgresql-dev ca-certificates postgresql-client
 COPY --from=builder /go/bin/webserver /webserver
 RUN chmod +x ./webserver
 RUN chown golang /webserver

@@ -8,7 +8,7 @@ RUN go get -d -v ./...
 RUN go install -v ./...
 
 RUN apk update \
-    && apk --no-cache add postgresql-dev ca-certificates
+    && apk --no-cache add postgresql-dev ca-certificates postgresql-client
 
 RUN mv ./deployments/production/go/entrypoint /entrypoint
 RUN sed 's/\r//g' /entrypoint
