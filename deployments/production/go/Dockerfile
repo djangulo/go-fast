@@ -6,6 +6,10 @@ COPY . .
 RUN go get -d -v ./...
 RUN CGO_ENABLED=0 GOOS=linux go build -p 1 -a -installsuffix cgo -o $GOPATH/bin/webserver ./cmd/webserver/main.go
 
+# wait for postgres connection
+RUN git clone https://github.com/eficode/wait-for.git /wait-for
+
+
 
 FROM alpine:latest
 
@@ -13,13 +17,13 @@ RUN addgroup -S golang \
     && adduser -S -G golang golang
 
 RUN apk update \
-    && apk --no-cache add postgresql-dev ca-certificates postgresql-client
+    && apk --no-cache add ca-certificates
+
 COPY --from=builder /go/bin/webserver /webserver
 RUN chmod +x ./webserver
 RUN chown golang /webserver
 
-COPY --from=builder /go/src/github.com/djangulo/go-fast/deployments/production/go/entrypoint /
-RUN sed -i 's/\r//g' /entrypoint
-RUN chmod +x /entrypoint
-RUN chown golang /entrypoint
-ENTRYPOINT [ "/entrypoint" ]
+COPY --from=builder /wait-for/wait-for /wait-for
+RUN sed -i 's/\r//g' /wait-for
+RUN chmod +x /wait-for
+RUN chown golang /wait-for
