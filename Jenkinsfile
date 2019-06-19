@@ -84,6 +84,9 @@ docker-compose -f staging.yml build --no-cache
 docker-compose -f staging.yml up --detach --remove-orphans
 '''
         }
+        stage('Healthchecks against staging server (not yet implemented)') {
+            echo "Healthchecks running"
+        }
         stage('Run E2E against staging (not available yet') {
             echo "E2E running..."
         }
