@@ -6,6 +6,7 @@ services:
       context: .
       dockerfile: ./deployments/local/go/Dockerfile
     image: go_fast_local
+    command: ["/wait-for", "postgres:5432", "webserver"]
     depends_on:
       - postgres
     volumes:
