@@ -7,4 +7,5 @@ COPY . .
 RUN go get -d -v ./...
 RUN go install -v ./...
 
-CMD ["webserver"]
+RUN mv ./deployments/production/go/wait-for /wait-for
+RUN chmod +x /wait-for
