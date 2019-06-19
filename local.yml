@@ -1,4 +1,4 @@
-version: "3.7"
+version: '3.7'
 
 services:
   app:
@@ -6,6 +6,7 @@ services:
       context: .
       dockerfile: ./deployments/local/go/Dockerfile
     image: go_fast_local
+    command: ['/wait-for', 'postgres:5432', '--', '/webserver', '-p', '9000']
     depends_on:
       - postgres
     volumes:
@@ -13,15 +14,15 @@ services:
     env_file:
       - ./.envs/.local/.postgres
     ports:
-      - "9000:9000"
+      - '9000:9000'
 
   postgres:
     build:
       context: .
       dockerfile: ./deployments/production/postgres/Dockerfile
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      interval: 1m30s
+      test: ['CMD', 'sh', '-c', '/usr/local/bin/healthcheck']
+      interval: 60s
       timeout: 10s
       retries: 5
       start_period: 30s
