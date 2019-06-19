@@ -37,6 +37,7 @@ node {
         echo 'Building inside docker container....'
         sh label: 'test-build', script: '''
 #!/bin/sh
+docker-compose -f local.yml down --volumes --remove-orphans
 docker-compose -f local.yml build --no-cache
 docker-compose -f local.yml up --detach --remove-orphans
         '''
