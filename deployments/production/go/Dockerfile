@@ -19,7 +19,7 @@ RUN chmod +x ./webserver
 RUN chown golang /webserver
 
 COPY --from=builder /go/src/github.com/djangulo/go-fast/deployments/production/go/entrypoint /
-RUN sed 's/\r//g' /entrypoint
+RUN sed -i 's/\r//g' /entrypoint
 RUN chmod +x /entrypoint
 RUN chown golang /entrypoint
 ENTRYPOINT [ "/entrypoint" ]
