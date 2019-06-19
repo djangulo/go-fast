@@ -12,3 +12,5 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 COPY --from=builder /go/bin/webserver .
 RUN chmod +x ./webserver
+COPY --from=builder /go/src/github.com/djangulo/go-fast/deployments/production/go/wait-for-postgres.sh .
+RUN chmod +x ./wait-for-postgres.sh
