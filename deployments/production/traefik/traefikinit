@@ -152,6 +152,7 @@ else
         fi
     fi
 fi
+sed -i "s#DOCKER_DOMAIN#${host}#g" $troot/docker-compose.yml
 sed -i "s#TRAEFIK_ROOT#${troot}#g" $troot/docker-compose.yml
 sed -i 's/\r//' $troot/docker-compose.yml
 

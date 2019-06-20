@@ -70,16 +70,17 @@ fi
 snake_network=${network_name//[- .]/_}
 message_info $snake_network
 message_info $target_file
-if grep -q "$snake_network" $target_file
+if grep -q "\- ${snake_network}$" $target_file
 then
     if [ "$remove" = true ]; then
         if [ "$inplace" = true ]; then
             sed -i "/${snake_network}:$/,+1d" $target_file
             grep -v "\- ${snake_network}$" $target_file > tmpfile; mv tmpfile $target_file
+            grep -v "\traefik.docker.network=${snake_network}'$" $target_file > tmpfile; mv tmpfile $target_file
             message_success "Network \e[33m${snake_network}\e[0m removed from ${target_file}"
         else
         message_info "No -i option"
-        sed "/${snake_network}:$/,+1d" $target_file | grep -v "\- ${snake_network}$"
+        sed "/${snake_network}:$/,+1d" $target_file | grep -v "\- ${snake_network}$" | grep -v "\- 'traefik.docker.network'=${snake_network}'$"
         fi
     else
         message_error "Network \e[33m${snake_network}\e[0m is already in ${target_file}"
@@ -93,11 +94,13 @@ else
         if [ "$inplace" = true ]; then
             sed -i -e '/^networks:/a\' -e "${tab_char}${snake_network}:\n${tab_char}${tab_char}external: true" $target_file
             sed -i  -e "/^${tab_char}${tab_char}networks:/a\\" -e "${tab_char}${tab_char}${tab_char}- ${snake_network}" $target_file
+            sed -i  -e "/^${tab_char}${tab_char}labels:/a\\" -e "${tab_char}${tab_char}${tab_char}- 'traefik.docker.network=${snake_network}'" $target_file
             message_success "Network \e[33m${snake_network}\e[0m added to ${target_file}"
         else
         message_info "No -i option"
         sed -e '/^networks:/a\' -e "${tab_char}${snake_network}:\n${tab_char}${tab_char}external: true" $target_file  | 
-            sed -e "/^${tab_char}${tab_char}networks:/a\\" -e "${tab_char}${tab_char}${tab_char}- ${snake_network}"
+            sed -e "/^${tab_char}${tab_char}networks:/a\\" -e "${tab_char}${tab_char}${tab_char}- ${snake_network}" | 
+            sed -e "/^${tab_char}${tab_char}labels:/a\\" -e "${tab_char}${tab_char}${tab_char}- 'traefik.docker.network=${snake_network}'"
         fi
     fi
 fi

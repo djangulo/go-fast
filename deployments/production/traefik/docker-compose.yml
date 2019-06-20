@@ -1,4 +1,4 @@
-version: "2"
+version: '2'
 
 services:
   traefik:
@@ -10,8 +10,13 @@ services:
     networks:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - TRAEFIK_ROOT/traefik.toml:/traefik.toml
-      - TRAEFIK_ROOT/acme.json:/acme.json
+      - /home/djangulo/go/src/github.com/djangulo/go-fast/traefik/traefik.toml:/traefik.toml
+      - /home/djangulo/go/src/github.com/djangulo/go-fast/traefik/acme.json:/acme.json
     container_name: traefik
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.frontend.rule=Host:admin.DOCKER_DOMAIN' # <---- admin
+      - 'traefik.port=8080'
+      - 'traefik.backend.healthcheck.interval=10s'
 
 networks:
