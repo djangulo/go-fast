@@ -47,7 +47,6 @@ docker-compose -f local.yml down --volumes --remove-orphans
         }
         withEnv([
             'DIGITALOCEAN_DROPLET_NAME=pet-projects',
-            'DIGITALOCEAN_ACCESS_TOKEN=$(cat ~/.djangulo-do-apikey)',
             'DIGITALOCEAN_REGION=nyc3',
             'DIGITAL_OCEAN_SSH_KEY_PATH=$HOME/.ssh/id_rsa.pub',
             'DIGITALOCEAN_SSH_PUBKEY_NAME="Jenkins-CI key (djal@tuta.io)"',
@@ -57,7 +56,8 @@ docker-compose -f local.yml down --volumes --remove-orphans
                 echo 'Deploying to digitalocean'
                 sh label: 'deploy-to-staging', script: '''
                 #!/bin/sh
-                export DIGITALOCEAN_DOMAIN=go-fast-staging.djangulo.com
+                DIGITALOCEAN_ACCESS_TOKEN=$(cat ~/.djangulo-do-apikey)
+                DIGITALOCEAN_DOMAIN=go-fast-staging.djangulo.com
 
                 docker_machine_output=$(docker-machine --native-ssh create --driver digitalocean --digitalocean-access-token "${DIGITALOCEAN_ACCESS_TOKEN}" "${DIGITALOCEAN_DROPLET_NAME}" 2>&1 | tr -d '\r')
                 echo $docker_machine_output
@@ -113,7 +113,8 @@ docker-compose -f local.yml down --volumes --remove-orphans
                     echo "Deploying to production server..."
                     sh label: '', script: '''
                     #!/bin/sh
-                    export DIGITALOCEAN_DOMAIN=go-fast.djangulo.com
+                    DIGITALOCEAN_ACCESS_TOKEN=$(cat ~/.djangulo-do-apikey)
+                    DIGITALOCEAN_DOMAIN=go-fast.djangulo.com
 
                     # Run provisioning script to create A records
                     /var/lib/jenkins/provision_digitalocean.py
