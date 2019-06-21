@@ -9,11 +9,9 @@ import (
 )
 
 var ErrRecordAlreadyExists = errors.New("already exists")
-var ErrNoUUID = errors.New("player has no ID (nil uuid.UUID)")
 
 func NewPostgreSQLPlayerStore(host, port, user, dbname, pass string) (*PostgreSQLPlayerStore, func()) {
 	connStr := fmt.Sprintf(
-		// "postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		"user=%s password=%s host=%s port=%s dbname=%s sslmode=disable",
 		user,
 		pass,
@@ -66,27 +64,12 @@ func (s *PostgreSQLPlayerStore) RecordWin(name string) {
 		s.DB.Exec(`INSERT INTO players(name, wins) VALUES($1, 1);`, name)
 		return
 	}
-	s.DB.Exec(`
-	UPDATE
-		players
-	SET
-		wins = wins + 1
-	WHERE
-		name = $1
-	`, name)
+	s.DB.Exec(`UPDATE players SET wins = wins + 1 WHERE name = $1`, name)
 }
 
 func (s *PostgreSQLPlayerStore) GetLeague() League {
 	results, err := s.DB.Query(`
-	SELECT
-		name,
-		wins
-	FROM
-		players
-	ORDER BY
-		wins DESC,
-		name ASC;
-	`)
+	SELECT name, wins FROM players ORDER BY	wins DESC,name ASC;`)
 	if err != nil {
 		fmt.Printf("error: %v", err)
 		return nil
