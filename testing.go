@@ -10,7 +10,22 @@ import (
 	"os"
 	"reflect"
 	"testing"
+	"time"
 )
+
+type SpyBlindAlerter struct {
+	Alerts []struct {
+		scheduledAt time.Duration
+		amount      int
+	}
+}
+
+func (s *SpyBlindAlerter) ScheduledAlertAt(duration time.Duration, amount int) {
+	s.Alerts = append(s.Alerts, struct {
+		scheduledAt time.Duration
+		amount      int
+	}{duration, amount})
+}
 
 func NewStubPlayerStore(
 	initialData map[string]int,

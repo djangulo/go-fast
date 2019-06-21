@@ -3,12 +3,14 @@ package poker
 import (
 	"errors"
 	"fmt"
+	"github.com/gofrs/uuid"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres" // unneeded namespace
 	"log"
 )
 
 var ErrRecordAlreadyExists = errors.New("already exists")
+var ErrNoUUID = errors.New("player has no ID (nil uuid.UUID)")
 
 func NewPostgreSQLPlayerStore(host, port, user, dbname, pass string) (*PostgreSQLPlayerStore, func()) {
 	connStr := fmt.Sprintf(
@@ -39,7 +41,7 @@ type PostgreSQLPlayerStore struct {
 
 func (s *PostgreSQLPlayerStore) GetPlayerScore(name string) int {
 	var player Player
-	s.DB.First(&player)
+	s.DB.Where("name = ?", name).First(&player)
 	return player.Wins
 }
 func (s *PostgreSQLPlayerStore) RecordWin(name string) {
@@ -61,5 +63,15 @@ func (s *PostgreSQLPlayerStore) CreatePlayer(player Player) error {
 	if res.Error != nil {
 		return ErrRecordAlreadyExists
 	}
+	return nil
+}
+
+func (s *PostgreSQLPlayerStore) DeletePlayer(name string) error {
+	var player Player
+	res := s.DB.First(&player)
+	if player.ID.String() == "00000000-0000-0000-0000-000000000000" || player.ID == uuid.Nil || res.Error != nil {
+		return ErrNoUUID
+	}
+	s.DB.Delete(player)
 	return nil
 }

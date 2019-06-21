@@ -8,13 +8,12 @@ import (
 	"testing"
 )
 
-
 // TestPostgreSQLPlayerStore integration test
 func TestPostgreSQLStoreIntegration(t *testing.T) {
 	store, removeStore := poker.NewPostgreSQLPlayerStore(
 		config.DatabaseHost,
 		config.DatabasePort,
-	    config.DatabaseUser,
+		config.DatabaseUser,
 		config.DatabaseName,
 		config.DatabasePassword,
 	)

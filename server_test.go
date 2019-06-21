@@ -91,5 +91,3 @@ func TestLeague(t *testing.T) {
 		poker.AssertContentType(t, response, poker.JsonContentType)
 	})
 }
-
-

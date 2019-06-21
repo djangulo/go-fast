@@ -11,7 +11,7 @@ func TestCLI(t *testing.T) {
 		in := strings.NewReader("Denis wins\n")
 		playerStore := &poker.StubPlayerStore{}
 
-		cli := poker.NewCLI(playerStore, in)
+		cli := poker.NewCLI(playerStore, in, dummySpyAlerter)
 		cli.PlayPoker()
 		poker.AssertPlayerWin(t, playerStore, "Denis")
 	})
@@ -20,8 +20,10 @@ func TestCLI(t *testing.T) {
 		in := strings.NewReader("Letty wins\n")
 		playerStore := &poker.StubPlayerStore{}
 
-		cli := poker.NewCLI(playerStore, in)
+		cli := poker.NewCLI(playerStore, in, dummySpyAlerter)
 		cli.PlayPoker()
 		poker.AssertPlayerWin(t, playerStore, "Letty")
 	})
 }
+
+var dummySpyAlerter = &poker.SpyBlindAlerter{}
