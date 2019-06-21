@@ -1,11 +1,10 @@
 package poker
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/gofrs/uuid"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres" // unneeded namespace
+	_ "github.com/lib/pq" // unneeded namespace
 	"log"
 )
 
@@ -14,18 +13,29 @@ var ErrNoUUID = errors.New("player has no ID (nil uuid.UUID)")
 
 func NewPostgreSQLPlayerStore(host, port, user, dbname, pass string) (*PostgreSQLPlayerStore, func()) {
 	connStr := fmt.Sprintf(
-		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		// "postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		"user=%s password=%s host=%s port=%s dbname=%s sslmode=disable",
 		user,
 		pass,
 		host,
 		port,
 		dbname,
 	)
-	db, err := gorm.Open("postgres", connStr)
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatalf("failed to connect database %v", err)
 	}
-	db.AutoMigrate(&Player{})
+
+	_, errCreate := db.Exec(`
+	CREATE TABLE IF NOT EXISTS players (
+		id		serial		PRIMARY KEY,
+		name	varchar(80)	NOT NULL UNIQUE,
+		wins	int			DEFAULT 0
+	);
+	`)
+	if errCreate != nil {
+		log.Fatalf("failed to create table %v", errCreate)
+	}
 
 	removeDatabase := func() {
 		db.Close()
@@ -36,42 +46,59 @@ func NewPostgreSQLPlayerStore(host, port, user, dbname, pass string) (*PostgreSQ
 
 // PostgreSQLPlayerStore
 type PostgreSQLPlayerStore struct {
-	DB *gorm.DB
+	DB *sql.DB
 }
 
 func (s *PostgreSQLPlayerStore) GetPlayerScore(name string) int {
-	var player Player
-	s.DB.Where("name = ?", name).First(&player)
-	return player.Wins
+	var wins int
+	err := s.DB.QueryRow(`SELECT wins FROM players WHERE name = $1;`, name).Scan(&wins)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return 0
+	}
+	return wins
 }
 func (s *PostgreSQLPlayerStore) RecordWin(name string) {
-	var player Player
-	s.DB.FirstOrCreate(&player, Player{Name: name})
-	player.Wins = player.Wins + 1
-	s.DB.Save(&player)
+	var userID int
+	err := s.DB.QueryRow(`SELECT id FROM players WHERE name = $1;`, name).Scan(&userID)
+	if err != nil { // likely does not exist
+		log.Printf("error: %v, inserting", err)
+		s.DB.Exec(`INSERT INTO players(name, wins) VALUES($1, 1);`, name)
+		return
+	}
+	s.DB.Exec(`
+	UPDATE
+		players
+	SET
+		wins = wins + 1
+	WHERE
+		name = $1
+	`, name)
 }
 
 func (s *PostgreSQLPlayerStore) GetLeague() League {
+	results, err := s.DB.Query(`
+	SELECT
+		name,
+		wins
+	FROM
+		players
+	ORDER BY
+		wins DESC,
+		name ASC;
+	`)
+	if err != nil {
+		fmt.Printf("error: %v", err)
+		return nil
+	}
 	var players League
-	s.DB.Select([]string{"name", "wins"}).Order("wins desc, name").Find(&players)
+	for results.Next() {
+		var player Player
+		err := results.Scan(&player.Name, &player.Wins)
+		if err != nil {
+			fmt.Printf("error: %v", err)
+		}
+		players = append(players, player)
+	}
 	return players
-}
-
-func (s *PostgreSQLPlayerStore) CreatePlayer(player Player) error {
-	s.DB.NewRecord(player)
-	res := s.DB.Create(&player)
-	if res.Error != nil {
-		return ErrRecordAlreadyExists
-	}
-	return nil
-}
-
-func (s *PostgreSQLPlayerStore) DeletePlayer(name string) error {
-	var player Player
-	res := s.DB.First(&player)
-	if player.ID.String() == "00000000-0000-0000-0000-000000000000" || player.ID == uuid.Nil || res.Error != nil {
-		return ErrNoUUID
-	}
-	s.DB.Delete(player)
-	return nil
 }
