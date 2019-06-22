@@ -19,6 +19,7 @@ func TestPostgreSQLStoreIntegration(t *testing.T) {
 			config.DatabaseHost,
 			config.DatabasePort,
 			config.DatabaseUser,
+			config.DatabaseName,
 			config.DatabasePassword,
 		)
 		defer remove()
@@ -38,6 +39,7 @@ func TestPostgreSQLStoreIntegration(t *testing.T) {
 			config.DatabaseHost,
 			config.DatabasePort,
 			config.DatabaseUser,
+			config.DatabaseName,
 			config.DatabasePassword,
 		)
 		defer remove()
@@ -61,46 +63,20 @@ func TestPostgreSQLStoreIntegration(t *testing.T) {
 
 }
 
-func savepointWrapper(
-	t *testing.T,
-	store *poker.PostgreSQLPlayerStore,
-	name string,
-	inner func(t *testing.T),
-) {
-	tx, err := store.DB.Begin()
-	if err != nil {
-		t.Fatalf("error: %#v", err)
-	}
-	// Create savepoint
-	_, err = tx.Exec(`SAVEPOINT test_savepoint;`)
-	if err != nil {
-		log.Printf("savepoint error: %#v", err)
-	}
-	// Run test functions
-	t.Run(name, inner)
-	// Rollback
-	_, err = tx.Exec(`ROLLBACK TO SAVEPOINT test_savepoint;`)
-	if err != nil {
-		log.Printf("rollback error: %#v", err)
-	}
-	// Release savepoint
-	_, err = tx.Exec(`RELEASE SAVEPOINT test_savepoint;`)
-	if err != nil {
-		log.Printf("release error: %#v", err)
-	}
-	// Commit empty transaction
-	tx.Rollback()
-}
-
 func newTestPostgreSQLPlayerStore(
 	host,
 	port,
 	user,
+	dbname,
 	pass string,
 ) (*poker.PostgreSQLPlayerStore, func()) {
 	mainConnStr := fmt.Sprintf(
-		"user=%s password=%s host=%s port=%s sslmode=disable",
-		user, pass, host, port,
+		"user=%s password=%s host=%s port=%s dbname=%s sslmode=disable",
+		user,
+		pass,
+		host,
+		port,
+		dbname,
 	)
 	mainDB, err := sql.Open("postgres", mainConnStr)
 	if err != nil {

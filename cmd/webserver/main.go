@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/djangulo/go-fast"
 	"github.com/djangulo/go-fast/config"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"log"
 	"net/http"
 )

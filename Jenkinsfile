@@ -28,17 +28,16 @@ node {
         echo 'Building inside docker container....'
         sh label: 'test-build', script: '''
 #!/bin/sh
-docker-compose -f local.yml down --volumes --remove-orphans
 docker-compose -f local.yml build --no-cache
-docker-compose -f local.yml up --detach --remove-orphans
+docker-compose -f local.yml up --detach
         '''
     }
     stage('Test') {
         echo 'Testing....'
         sh label: 'tests', script: '''
 #!/bin/sh
-docker-compose -f local.yml run --rm app go test -v
-docker-compose -f local.yml down --volumes --remove-orphans
+docker-compose -f local.yml run --rm app /wait-for -t 60 postgres:5432 -- /test -test.v
+docker-compose -f local.yml down --remove-orphans
         '''
     }
     if (currentBuild.currentResult == 'SUCCESS') {
