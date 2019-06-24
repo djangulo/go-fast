@@ -20,7 +20,15 @@ func main() {
 	)
 	defer removeStore()
 
-	game := poker.NewCLI(store, os.Stdin)
-	game.PlayPoker()
+	game := poker.NewTexasHoldem(
+		poker.BlindAlerterFunc(poker.StdOutAlerter),
+		store,
+	)
+
+	poker.NewCLI(
+		os.Stdin,
+		os.Stdout,
+		game,
+	).PlayPoker()
 
 }
