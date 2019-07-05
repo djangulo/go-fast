@@ -12,7 +12,7 @@ func TestGETRoot(t *testing.T) {
 		"Pepper": 20,
 		"Floyd":  10,
 	}, nil, nil)
-	server := poker.NewPlayerServer(store)
+	server, _ := poker.NewPlayerServer(store, poker.DummyGame)
 	request, _ := http.NewRequest(http.MethodGet, "/", nil)
 	response := httptest.NewRecorder()
 	server.ServeHTTP(response, request)
@@ -26,7 +26,7 @@ func TestGETPlayers(t *testing.T) {
 		"Pepper": 20,
 		"Floyd":  10,
 	}, nil, nil)
-	server := poker.NewPlayerServer(store)
+	server, _ := poker.NewPlayerServer(store, poker.DummyGame)
 
 	t.Run("returns Pepper's score", func(t *testing.T) {
 		request := poker.NewGetScoreRequest("Pepper")
@@ -52,7 +52,7 @@ func TestGETPlayers(t *testing.T) {
 
 func TestStoreWins(t *testing.T) {
 	store := poker.NewStubPlayerStore(map[string]int{}, nil, nil)
-	server := poker.NewPlayerServer(store)
+	server, _ := poker.NewPlayerServer(store, poker.DummyGame)
 	t.Run("it records wins when POSTed", func(t *testing.T) {
 		player := "Pepper"
 		request := poker.NewPostWinRequest(player)
@@ -78,7 +78,7 @@ func TestLeague(t *testing.T) {
 		}
 
 		store := poker.NewStubPlayerStore(nil, nil, wantedLeague)
-		server := poker.NewPlayerServer(store)
+		server, _ := poker.NewPlayerServer(store, poker.DummyGame)
 
 		request := poker.NewLeagueRequest()
 		response := httptest.NewRecorder()

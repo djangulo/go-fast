@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/websocket"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -28,7 +29,7 @@ type SpyBlindAlerter struct {
 	Alerts []ScheduledAlert
 }
 
-func (s *SpyBlindAlerter) ScheduleAlertAt(at time.Duration, amount int) {
+func (s *SpyBlindAlerter) ScheduleAlertAt(at time.Duration, amount int, to io.Writer) {
 	s.Alerts = append(s.Alerts, ScheduledAlert{at, amount})
 }
 
@@ -69,7 +70,7 @@ type GameSpy struct {
 	StartCalled  bool
 }
 
-func (g *GameSpy) Start(numberOfPlayers int) {
+func (g *GameSpy) Start(numberOfPlayers int, alertsDestination io.Writer) {
 	g.StartCalled = true
 	g.StartedWith = numberOfPlayers
 }
@@ -116,6 +117,11 @@ func AssertLeague(t *testing.T, got, want League) {
 }
 func NewLeagueRequest() *http.Request {
 	req, _ := http.NewRequest(http.MethodGet, "/league", nil)
+	return req
+}
+
+func NewGameRequest() *http.Request {
+	req, _ := http.NewRequest(http.MethodGet, "/game", nil)
 	return req
 }
 
@@ -213,3 +219,45 @@ func AssertMessagesSentToUser(t *testing.T, stdout *bytes.Buffer, messages ...st
 		t.Errorf("got '%s' sent to stdout but expected %+v", got, messages)
 	}
 }
+
+func WriteWSMessage(t *testing.T, conn *websocket.Conn, message string) {
+	t.Helper()
+	if err := conn.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
+		t.Fatalf("could not send message over ws connection %v", err)
+	}
+}
+
+func MustMakePlayerServer(t *testing.T, store PlayerStore, spy *GameSpy) *PlayerServer {
+	server, err := NewPlayerServer(store, spy)
+	if err != nil {
+		t.Fatal("problem creating player server", err)
+	}
+	return server
+}
+func MustDialWS(t *testing.T, url string) *websocket.Conn {
+	ws, _, err := websocket.DefaultDialer.Dial(url, nil)
+
+	if err != nil {
+		t.Fatalf("could not open a ws connection on %s %v", url, err)
+	}
+
+	return ws
+}
+
+func AssertGameStartedWith(t *testing.T, gameSpy *GameSpy, want int) {
+	t.Helper()
+	got := gameSpy.StartedWith
+	if got != want {
+		t.Fatalf("want %d got %d", got, want)
+	}
+}
+
+func AssertFinishCalledWith(t *testing.T, gameSpy *GameSpy, want string) {
+	t.Helper()
+	got := gameSpy.FinishedWith
+	if got != want {
+		t.Fatalf("want %s got %s", got, want)
+	}
+}
+
+var DummyGame = &GameSpy{}

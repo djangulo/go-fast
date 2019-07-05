@@ -31,8 +31,11 @@ func main() {
 		config.DatabasePassword,
 	)
 	defer removeStore()
-	server := poker.NewPlayerServer(store)
-	if err := http.ListenAndServe(":"+port, server); err != nil {
+	server, err := poker.NewPlayerServer(store)
+	if err != nil {
+		log.Fatalf("could not create server %v", err)
+	}
+	if err = http.ListenAndServe(":"+port, server); err != nil {
 		log.Fatalf("could not listen on port %s %v", port, err)
 	}
 }
